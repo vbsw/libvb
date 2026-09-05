@@ -11,7 +11,7 @@ libvb is distributed under the Boost Software License, version 1.0. (See accompa
 libvb is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Boost Software License for more details.
 
 ## Compile
-Go into project directory and execute
+Go into project directory and run
 
 	make
 
