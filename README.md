@@ -15,12 +15,12 @@ Go into project directory and execute
 
 	make
 
-You find the static and dynamic labrary in
+You find the static labrary (libvb.a) and dynamic labrary (libvb.so) in
 
-	<project>/build/release.linux
+	./build/release.linux
 
 **Tests**  
-To compile tests, first go into project directory and checkout the "development" branch with
+To compile tests go into project directory and checkout the "development" branch with
 
 	git switch development
 
