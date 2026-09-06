@@ -25,9 +25,9 @@ typedef struct vb_mst_block_t {
 } vb_mst_block_t;
 
 typedef struct {
-	void *(*alloc)(void *obj, int64_t size);
-	void *(*free)(void *ptr);
-	void *(*destroy)(void *obj);
+	void *(*alloc)(vb_err_t **err, void *obj, int64_t size);
+	void *(*free)(vb_err_t **err, void *ptr);
+	void *(*destroy)(vb_err_t **err, void *obj);
 	vb_mst_block_t *block;
 	int64_t size_used;
 	int64_t size_total;
