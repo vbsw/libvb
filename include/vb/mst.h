@@ -39,6 +39,10 @@ vb_mst_t *vb_mst_new(vb_err_t **err, int64_t size_init, int64_t size_max);
 vb_mst_t *vb_mst_new_0(vb_err_t **err);
 vb_mst_t *vb_mst_new_lmt(vb_err_t **err, int64_t size_init);
 vb_mst_t *vb_mst_new_max(vb_err_t **err, int64_t size_init);
+void *vb_mst_alloc(vb_err_t **err, vb_mst_t *stack, int64_t size);
+void *vb_mst_push(vb_err_t **err, vb_mst_t *stack, int64_t size);
+void vb_mst_pop(vb_err_t **err, vb_mst_t *stack);
+vb_mst_t *vb_mst_destroy(vb_err_t **err, vb_mst_t *stack);
 
 #define VB_MST_PUSHED(stack) ((stack)->block->top_chunk->counter > 0 || (stack)->block->top_chunk->jump_back)
 

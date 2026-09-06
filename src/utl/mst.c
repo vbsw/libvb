@@ -181,7 +181,7 @@ void *vb_mst_alloc(vb_err_t **const err, vb_mst_t *const stack, const int64_t si
 							block->size_used += size_up;
 							stack->size_used += size_up;
 							break;
-						} else if (block->top_chunk->counter > 0 && size_up_chunk >= block_size_free) {
+						} else if (block->top_chunk->counter > 0 && size_up_chunk <= block_size_free) {
 							vb_mst_chunk_t *const jump_back = block->top_chunk;
 							block->top_chunk->counter--;
 							ret_val = (void*)&((char*)block->top_chunk)[CHUNK_T_SIZE];
@@ -234,7 +234,7 @@ void *vb_mst_alloc(vb_err_t **const err, vb_mst_t *const stack, const int64_t si
 	return ret_val;
 }
 
-void *vb_mst_push(vb_err_t **const err, vb_mst_t *const stack, const size_t size) {
+void *vb_mst_push(vb_err_t **const err, vb_mst_t *const stack, const int64_t size) {
 	assert(err);
 	assert(stack);
 	void *ret_val = NULL;
@@ -356,4 +356,20 @@ void vb_mst_pop(vb_err_t **const err, vb_mst_t *const stack) {
 			block = block->next_block;
 		} while (block);
 	}
+}
+
+vb_mst_t *vb_mst_destroy(vb_err_t **const err, vb_mst_t *const stack) {
+	assert(err);
+	if (*err == NULL) {
+		if (stack) {
+			vb_mst_block_t *block = stack->block->next_block;
+			free((void*)stack);
+			while (block) {
+				vb_mst_block_t *const next_block = block->next_block;
+				free((void*)block);
+				block = next_block;
+			}
+		}
+	}
+	return NULL;
 }
