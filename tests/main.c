@@ -11,10 +11,13 @@
 #define PRINT_RESULT(a) if (!err_line) printf("%-6s PASS\n", a); else printf("%-6s FAIL (line %d)\n", a, err_line);
 
 void test_err(int *err_line);
+void test_mst(int *err_line);
 
 int main(int argc, char **argv) {
 	int err_line;
 	test_err(&err_line);
 	PRINT_RESULT("err")
+	test_mst(&err_line);
+	PRINT_RESULT("mst")
 	return 0;
 }
