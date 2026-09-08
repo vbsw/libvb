@@ -12,6 +12,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <vb/err.h>
+#include <vb/utl.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,9 +48,12 @@ bool vb_mst_init(vb_mst_t *stack, int64_t size_init, int64_t size_max);
 bool vb_mst_init_empty(vb_mst_t *stack);
 bool vb_mst_init_min(vb_mst_t *stack, int64_t size_init);
 bool vb_mst_init_max(vb_mst_t *stack, int64_t size_init);
+void vb_mst_init_mem(vb_mst_t *stack, vb_mem_t *mem);
 void *vb_mst_alloc(vb_mst_t *stack, int64_t size);
 void *vb_mst_push(vb_mst_t *stack, int64_t size);
+vb_mem_t *vb_mst_alloc_mem(vb_mst_t *stack);
 void vb_mst_pop(vb_mst_t *stack);
+void *vb_mst_free(vb_mst_t *stack, void *ptr);
 void vb_mst_destroy(vb_mst_t *stack);
 
 #define VB_MST_PUSHED(stack) ((stack)->head->block->top_chunk->counter > 0 || (stack)->head->block->top_chunk->jump_back)

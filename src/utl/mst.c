@@ -20,7 +20,7 @@
 #define STRUCTS_INIT_SIZE (HEAD_T_SIZE + BLOCK_T_SIZE + CHUNK_T_SIZE)
 #define MAX_ROUND_UP      (MST_INT_MAX - alignof(max_align_t) + 1)
 
-bool vb_mst_new(vb_mst_t *const stack, const int64_t size_init, const int64_t size_limit) {
+bool vb_mst_init(vb_mst_t *const stack, const int64_t size_init, const int64_t size_limit) {
 	assert(stack);
 	bool ret_val = false;
 	if (stack->err == NULL) {
@@ -166,6 +166,15 @@ bool vb_mst_init_max(vb_mst_t *const stack, const int64_t size_init) {
 		}
 	}
 	return ret_val;
+}
+
+void vb_mst_init_mem(vb_mst_t *const stack, vb_mem_t *const mem) {
+	assert(stack);
+	assert(mem);
+	mem->alloc = (vb_mem_alloc_t)vb_mst_alloc;
+	mem->free = (vb_mem_free_t)vb_mst_free;
+	mem->destroy = (vb_mem_destroy_t)vb_mst_destroy;
+	mem->obj = (void*)stack;
 }
 
 void *vb_mst_alloc(vb_mst_t *const stack, const int64_t size) {
@@ -357,6 +366,14 @@ void *vb_mst_push(vb_mst_t *const stack, const int64_t size) {
 	return ret_val;
 }
 
+vb_mem_t *vb_mst_alloc_mem(vb_mst_t *const stack) {
+	assert(stack);
+	vb_mem_t *mem = vb_mst_alloc(stack, sizeof(vb_mem_t));
+	if (mem)
+		vb_mst_init_mem(stack, mem);
+	return mem;
+}
+
 void vb_mst_pop(vb_mst_t *const stack) {
 	assert(stack);
 	if (stack->err == NULL) {
@@ -374,6 +391,11 @@ void vb_mst_pop(vb_mst_t *const stack) {
 			block = block->next_block;
 		} while (block);
 	}
+}
+
+void *vb_mst_free(vb_mst_t *const stack, void *const ptr) {
+	// stack data can not be freed individually
+	return NULL;
 }
 
 void vb_mst_destroy(vb_mst_t *const stack) {
