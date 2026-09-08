@@ -13,161 +13,172 @@
 #define MST_INT_MAX   ((sizeof(size_t) >= sizeof(int64_t)) ? INT64_MAX : SIZE_MAX)
 
 #define ROUND_UP(a)   ((a + alignof(max_align_t) - 1) & ~(alignof(max_align_t) - 1))
-#define HEAD_T_SIZE   ROUND_UP(sizeof(vb_mst_t))
+#define HEAD_T_SIZE   ROUND_UP(sizeof(vb_mst_head_t))
 #define BLOCK_T_SIZE  ROUND_UP(sizeof(vb_mst_block_t))
 #define CHUNK_T_SIZE  ROUND_UP(sizeof(vb_mst_chunk_t))
 
 #define STRUCTS_INIT_SIZE (HEAD_T_SIZE + BLOCK_T_SIZE + CHUNK_T_SIZE)
 #define MAX_ROUND_UP      (MST_INT_MAX - alignof(max_align_t) + 1)
 
-vb_mst_t *vb_mst_new(vb_err_t **const err, const int64_t size_init, const int64_t size_limit) {
-	assert(err);
-	vb_mst_t *mst = NULL;
-	if (*err == NULL) {
+bool vb_mst_new(vb_mst_t *const stack, const int64_t size_init, const int64_t size_limit) {
+	assert(stack);
+	bool ret_val = false;
+	if (stack->err == NULL) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
 			if (size_init <= size_limit) {
 				if (size_limit <= MAX_ROUND_UP) {
-					const int64_t size_init_up = (int64_t)ROUND_UP(size_init);
-					mst = (vb_mst_t*)malloc((size_t)size_init_up);
-					if (mst) {
-						vb_mst_chunk_t *const chunk = (vb_mst_chunk_t*)&((char*)mst)[HEAD_T_SIZE + BLOCK_T_SIZE];
-						vb_mst_block_t *const block = (vb_mst_block_t*)&((char*)mst)[HEAD_T_SIZE];
+					const int64_t size_init_up = ROUND_UP(size_init);
+					vb_mst_head_t *const head = (vb_mst_head_t*)malloc((size_t)size_init_up);
+					if (head) {
+						vb_mst_chunk_t *const chunk = (vb_mst_chunk_t*)&((char*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
+						vb_mst_block_t *const block = (vb_mst_block_t*)&((char*)head)[HEAD_T_SIZE];
 						chunk->jump_back = NULL;
 						chunk->counter = 0;
 						block->next_block = NULL;
 						block->top_chunk = chunk;
-						block->size_used = (int64_t)STRUCTS_INIT_SIZE;
+						block->size_used = STRUCTS_INIT_SIZE;
 						block->size_total = size_init_up;
-						mst->block = block;
-						mst->size_used = (int64_t)STRUCTS_INIT_SIZE;
-						mst->size_total = size_init_up;
-						mst->size_init = size_init_up;
-						mst->size_total_limit = (int64_t)ROUND_UP(size_limit);
+						head->block = block;
+						head->size_used = STRUCTS_INIT_SIZE;
+						head->size_total = size_init_up;
+						head->size_overhead = STRUCTS_INIT_SIZE;
+						head->size_init = size_init_up;
+						head->size_total_limit = ROUND_UP(size_limit);
+						stack->head = head;
+						ret_val = true;
 					} else {
-						*err = vb_err_new_oom(VB_ERR_MST_OOM, 1, NULL);
+						stack->err = vb_err_new_oom(VB_ERR_MST_OOM, 1, NULL);
 					}
 				} else {
-					*err = vb_err_new(VB_ERR_MST_OVERFLOW, 1, "size limit overflow", NULL);
+					stack->err = vb_err_new(VB_ERR_MST_OVERFLOW, 1, "size limit overflow", NULL);
 				}
 			} else {
-				*err = vb_err_new(VB_ERR_MST_LIMIT_EXCEEDED, VB_ERR_NONE, "initial size exceeds limit", NULL);
+				stack->err = vb_err_new(VB_ERR_MST_LIMIT_EXCEEDED, VB_ERR_NONE, "initial size exceeds limit", NULL);
 			}
 		} else {
-			*err = vb_err_new(VB_ERR_MST_UNDERFLOW, 1, "initial size underflow", NULL);
+			stack->err = vb_err_new(VB_ERR_MST_UNDERFLOW, 1, "initial size underflow", NULL);
 		}
 	}
-	return mst;
+	return ret_val;
 }
 
-vb_mst_t *vb_mst_new_0(vb_err_t **const err) {
-	assert(err);
-	vb_mst_t *mst = NULL;
-	if (*err == NULL) {
-		const int64_t size_init_up = (int64_t)ROUND_UP(STRUCTS_INIT_SIZE);
-		mst = (vb_mst_t*)malloc((size_t)size_init_up);
-		if (mst) {
-			vb_mst_chunk_t *const chunk = (vb_mst_chunk_t*)&((char*)mst)[HEAD_T_SIZE + BLOCK_T_SIZE];
-			vb_mst_block_t *const block = (vb_mst_block_t*)&((char*)mst)[HEAD_T_SIZE];
+bool vb_mst_init_empty(vb_mst_t *const stack) {
+	assert(stack);
+	bool ret_val = false;
+	if (stack->err == NULL) {
+		const int64_t size_init_up = STRUCTS_INIT_SIZE;
+		vb_mst_head_t *const head = (vb_mst_head_t*)malloc((size_t)size_init_up);
+		if (head) {
+			vb_mst_chunk_t *const chunk = (vb_mst_chunk_t*)&((char*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
+			vb_mst_block_t *const block = (vb_mst_block_t*)&((char*)head)[HEAD_T_SIZE];
 			chunk->jump_back = NULL;
 			chunk->counter = 0;
 			block->next_block = NULL;
 			block->top_chunk = chunk;
 			block->size_used = size_init_up;
 			block->size_total = size_init_up;
-			mst->block = block;
-			mst->size_used = size_init_up;
-			mst->size_total = size_init_up;
-			mst->size_init = size_init_up;
-			mst->size_total_limit = size_init_up;
+			head->block = block;
+			head->size_used = size_init_up;
+			head->size_total = size_init_up;
+			head->size_overhead = size_init_up;
+			head->size_init = size_init_up;
+			head->size_total_limit = size_init_up;
+			stack->head = head;
+			ret_val = true;
 		} else {
-			*err = vb_err_new_oom(VB_ERR_MST_OOM, 2, NULL);
+			stack->err = vb_err_new_oom(VB_ERR_MST_OOM, 2, NULL);
 		}
 	}
-	return mst;
+	return ret_val;
 }
 
-vb_mst_t *vb_mst_new_lmt(vb_err_t **const err, const int64_t size_init) {
-	assert(err);
-	vb_mst_t *mst = NULL;
-	if (*err == NULL) {
+bool vb_mst_init_min(vb_mst_t *const stack, const int64_t size_init) {
+	assert(stack);
+	bool ret_val = false;
+	if (stack->err == NULL) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
 			if (size_init <= MAX_ROUND_UP) {
 				const int64_t size_init_up = (int64_t)ROUND_UP(size_init);
-				mst = (vb_mst_t*)malloc((size_t)size_init_up);
-				if (mst) {
-					vb_mst_chunk_t *const chunk = (vb_mst_chunk_t*)&((char*)mst)[HEAD_T_SIZE + BLOCK_T_SIZE];
-					vb_mst_block_t *const block = (vb_mst_block_t*)&((char*)mst)[HEAD_T_SIZE];
+				vb_mst_head_t *const head = (vb_mst_head_t*)malloc((size_t)size_init_up);
+				if (head) {
+					vb_mst_chunk_t *const chunk = (vb_mst_chunk_t*)&((char*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
+					vb_mst_block_t *const block = (vb_mst_block_t*)&((char*)head)[HEAD_T_SIZE];
 					chunk->jump_back = NULL;
 					chunk->counter = 0;
 					block->next_block = NULL;
 					block->top_chunk = chunk;
-					block->size_used = (int64_t)STRUCTS_INIT_SIZE;
+					block->size_used = STRUCTS_INIT_SIZE;
 					block->size_total = size_init_up;
-					mst->block = block;
-					mst->size_used = (int64_t)STRUCTS_INIT_SIZE;
-					mst->size_total = size_init_up;
-					mst->size_init = size_init_up;
-					mst->size_total_limit = size_init_up;
+					head->block = block;
+					head->size_used = STRUCTS_INIT_SIZE;
+					head->size_total = size_init_up;
+					head->size_overhead = STRUCTS_INIT_SIZE;
+					head->size_init = size_init_up;
+					head->size_total_limit = size_init_up;
+					stack->head = head;
+					ret_val = true;
 				} else {
-					*err = vb_err_new_oom(VB_ERR_MST_OOM, 3, NULL);
+					stack->err = vb_err_new_oom(VB_ERR_MST_OOM, 3, NULL);
 				}
 			} else {
-				*err = vb_err_new(VB_ERR_MST_OVERFLOW, 2, "size limit overflow", NULL);
+				stack->err = vb_err_new(VB_ERR_MST_OVERFLOW, 2, "size limit overflow", NULL);
 			}
 		} else {
-			*err = vb_err_new(VB_ERR_MST_UNDERFLOW, 2, "initial size underflow", NULL);
+			stack->err = vb_err_new(VB_ERR_MST_UNDERFLOW, 2, "initial size underflow", NULL);
 		}
 	}
-	return mst;
+	return ret_val;
 }
 
-vb_mst_t *vb_mst_new_max(vb_err_t **const err, const int64_t size_init) {
-	assert(err);
-	vb_mst_t *mst = NULL;
-	if (*err == NULL) {
+bool vb_mst_init_max(vb_mst_t *const stack, const int64_t size_init) {
+	assert(stack);
+	bool ret_val = false;
+	if (stack->err == NULL) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
 			if (size_init <= MAX_ROUND_UP) {
 				const int64_t size_init_up = (int64_t)ROUND_UP(size_init);
-				mst = (vb_mst_t*)malloc((size_t)size_init_up);
-				if (mst) {
-					vb_mst_chunk_t *const chunk = (vb_mst_chunk_t*)&((char*)mst)[HEAD_T_SIZE + BLOCK_T_SIZE];
-					vb_mst_block_t *const block = (vb_mst_block_t*)&((char*)mst)[HEAD_T_SIZE];
+				vb_mst_head_t *const head = (vb_mst_head_t*)malloc((size_t)size_init_up);
+				if (head) {
+					vb_mst_chunk_t *const chunk = (vb_mst_chunk_t*)&((char*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
+					vb_mst_block_t *const block = (vb_mst_block_t*)&((char*)head)[HEAD_T_SIZE];
 					chunk->jump_back = NULL;
 					chunk->counter = 0;
 					block->next_block = NULL;
 					block->top_chunk = chunk;
-					block->size_used = (int64_t)STRUCTS_INIT_SIZE;
+					block->size_used = STRUCTS_INIT_SIZE;
 					block->size_total = size_init_up;
-					mst->block = block;
-					mst->size_used = (int64_t)STRUCTS_INIT_SIZE;
-					mst->size_total = size_init_up;
-					mst->size_init = size_init_up;
-					mst->size_total_limit = (int64_t)ROUND_UP(MAX_ROUND_UP);
+					head->block = block;
+					head->size_used = STRUCTS_INIT_SIZE;
+					head->size_total = size_init_up;
+					head->size_overhead = STRUCTS_INIT_SIZE;
+					head->size_init = size_init_up;
+					head->size_total_limit = ROUND_UP(MAX_ROUND_UP);
+					stack->head = head;
+					ret_val = true;
 				} else {
-					*err = vb_err_new_oom(VB_ERR_MST_OOM, 4, NULL);
+					stack->err = vb_err_new_oom(VB_ERR_MST_OOM, 4, NULL);
 				}
 			} else {
-				*err = vb_err_new(VB_ERR_MST_OVERFLOW, 3, "size limit overflow", NULL);
+				stack->err = vb_err_new(VB_ERR_MST_OVERFLOW, 3, "size limit overflow", NULL);
 			}
 		} else {
-			*err = vb_err_new(VB_ERR_MST_UNDERFLOW, 3, "initial size underflow", NULL);
+			stack->err = vb_err_new(VB_ERR_MST_UNDERFLOW, 3, "initial size underflow", NULL);
 		}
 	}
-	return mst;
+	return ret_val;
 }
 
-void *vb_mst_alloc(vb_err_t **const err, vb_mst_t *const stack, const int64_t size) {
-	assert(err);
+void *vb_mst_alloc(vb_mst_t *const stack, const int64_t size) {
 	assert(stack);
 	assert(VB_MST_PUSHED(stack));
 	void *ret_val = NULL;
-	if (*err == NULL) {
+	if (stack->err == NULL) {
 		if (size > 0) {
 			if (size <= (int64_t)(MAX_ROUND_UP - CHUNK_T_SIZE*2 - BLOCK_T_SIZE)) {
-				const int64_t size_up = (int64_t)ROUND_UP(size);
-				if (size_up <= stack->size_total_limit - stack->size_used) {
-					const int64_t size_up_chunk = (int64_t)(size_up + CHUNK_T_SIZE);
-					vb_mst_block_t *block = stack->block;
+				const int64_t size_up = ROUND_UP(size);
+				if (size_up <= stack->head->size_total_limit - stack->head->size_used) {
+					const int64_t size_up_chunk = size_up + CHUNK_T_SIZE;
+					vb_mst_block_t *block = stack->head->block;
 					int64_t block_size_total_sum = 0;
 					while (true) {
 						const int64_t block_size_free = block->size_total - block->size_used;
@@ -179,7 +190,9 @@ void *vb_mst_alloc(vb_err_t **const err, vb_mst_t *const stack, const int64_t si
 							block->top_chunk->jump_back = jump_back;
 							block->top_chunk->counter = 0;
 							block->size_used += size_up;
-							stack->size_used += size_up;
+							stack->head->size_used += size_up;
+							stack->head->size_total += 0;
+							stack->head->size_overhead += 0;
 							break;
 						} else if (block->top_chunk->counter > 0 && size_up_chunk <= block_size_free) {
 							vb_mst_chunk_t *const jump_back = block->top_chunk;
@@ -189,15 +202,17 @@ void *vb_mst_alloc(vb_err_t **const err, vb_mst_t *const stack, const int64_t si
 							block->top_chunk->jump_back = jump_back;
 							block->top_chunk->counter = 0;
 							block->size_used += size_up_chunk;
-							stack->size_used += size_up_chunk;
+							stack->head->size_used += size_up_chunk;
+							stack->head->size_total += 0;
+							stack->head->size_overhead += CHUNK_T_SIZE;
 							break;
 						} else if (block->next_block) {
 							block = block->next_block;
 						} else {
 							// allocating new block
 							const int64_t block_size_used_new = size_up_chunk + BLOCK_T_SIZE + CHUNK_T_SIZE;
-							if (block_size_used_new <= stack->size_total_limit - block_size_total_sum) {
-								const int64_t block_size_total_new = (stack->size_init >= block_size_used_new) ? stack->size_init : block_size_used_new;
+							if (block_size_used_new <= stack->head->size_total_limit - block_size_total_sum) {
+								const int64_t block_size_total_new = (stack->head->size_init >= block_size_used_new) ? stack->head->size_init : block_size_used_new;
 								vb_mst_block_t *const block_new = (vb_mst_block_t*)malloc((size_t)block_size_total_new);
 								if (block_new) {
 									vb_mst_chunk_t *const chunk0 = (vb_mst_chunk_t*)&((char*)block_new)[BLOCK_T_SIZE];
@@ -209,41 +224,41 @@ void *vb_mst_alloc(vb_err_t **const err, vb_mst_t *const stack, const int64_t si
 									block_new->size_used = block_size_used_new;
 									block_new->size_total = block_size_total_new;
 									block->next_block = block_new;
-									stack->size_used += block_size_used_new;
-									stack->size_total += block_size_total_new;
+									stack->head->size_used += block_size_used_new;
+									stack->head->size_total += block_size_total_new;
+									stack->head->size_overhead += BLOCK_T_SIZE + CHUNK_T_SIZE*2;
 									ret_val = (void*)&((char*)chunk0)[CHUNK_T_SIZE];
 								} else {
-									*err = vb_err_new_oom(VB_ERR_MST_OOM, 7, NULL);
+									stack->err = vb_err_new_oom(VB_ERR_MST_OOM, 7, NULL);
 								}
 							} else {
-								*err = vb_err_new_oom(VB_ERR_MST_OOM, 6, NULL);
+								stack->err = vb_err_new_oom(VB_ERR_MST_OOM, 6, NULL);
 							}
 							break;
 						}
 					}
 				} else {
-					*err = vb_err_new_oom(VB_ERR_MST_OOM, 5, NULL);
+					stack->err = vb_err_new_oom(VB_ERR_MST_OOM, 5, NULL);
 				}
 			} else {
-				*err = vb_err_new(VB_ERR_MST_OVERFLOW, 4, "allocation size overflow", NULL);
+				stack->err = vb_err_new(VB_ERR_MST_OVERFLOW, 4, "allocation size overflow", NULL);
 			}
 		} else {
-			*err = vb_err_new(VB_ERR_MST_UNDERFLOW, 4, "allocation size underflow", NULL);
+			stack->err = vb_err_new(VB_ERR_MST_UNDERFLOW, 4, "allocation size underflow", NULL);
 		}
 	}
 	return ret_val;
 }
 
-void *vb_mst_push(vb_err_t **const err, vb_mst_t *const stack, const int64_t size) {
-	assert(err);
+void *vb_mst_push(vb_mst_t *const stack, const int64_t size) {
 	assert(stack);
 	void *ret_val = NULL;
-	if (*err == NULL) {
-		vb_mst_block_t *block = stack->block;
+	if (stack->err == NULL) {
+		vb_mst_block_t *block = stack->head->block;
 		if (size > 0) {
 			if (size <= (int64_t)(MAX_ROUND_UP - CHUNK_T_SIZE*2 - BLOCK_T_SIZE)) {
-				const int64_t size_up_chunk = (int64_t)(ROUND_UP(size) + CHUNK_T_SIZE);
-				if (size_up_chunk <= stack->size_total_limit - stack->size_used) {
+				const int64_t size_up_chunk = ROUND_UP(size) + CHUNK_T_SIZE;
+				if (size_up_chunk <= stack->head->size_total_limit - stack->head->size_used) {
 					vb_mst_block_t *block_mod = NULL;
 					int64_t block_size_total_sum = 0;
 					// searching for block with enough free memory
@@ -258,29 +273,31 @@ void *vb_mst_push(vb_err_t **const err, vb_mst_t *const stack, const int64_t siz
 							block_mod = block;
 							block_mod->top_chunk = chunk_new;
 							block_mod->size_used += size_up_chunk;
-							stack->size_used += size_up_chunk;
+							stack->head->size_used += size_up_chunk;
+							stack->head->size_total += 0;
+							stack->head->size_overhead += CHUNK_T_SIZE;
 						} else {
 							if (INT64_MAX > block->top_chunk->counter) {
 								block->top_chunk->counter++;
 							} else {
-								vb_mst_block_t *block_rev = stack->block;
-								// revert increments until current block
+								vb_mst_block_t *block_rev = stack->head->block;
+								// revert increments to current block
 								while (block_rev != block) {
 									if (block_rev != block_mod)
 										block_rev->top_chunk->counter--;
 									block_rev = block_rev->next_block;
 								};
-								*err = vb_err_new(VB_ERR_MST_OVERFLOW, 5, "push stack overflow", NULL);
+								stack->err = vb_err_new(VB_ERR_MST_OVERFLOW, 5, "push stack overflow", NULL);
 								break;
 							}
 						}
 						block = block->next_block;
 					} while (block);
 					// allocating new block
-					if (*err == NULL && ret_val == NULL) {
+					if (stack->err == NULL && ret_val == NULL) {
 						const int64_t block_size_used_new = size_up_chunk + BLOCK_T_SIZE + CHUNK_T_SIZE;
-						if (block_size_used_new <= stack->size_total_limit - block_size_total_sum) {
-							const int64_t block_size_total_new = (stack->size_init >= block_size_used_new) ? stack->size_init : block_size_used_new;
+						if (block_size_used_new <= stack->head->size_total_limit - block_size_total_sum) {
+							const int64_t block_size_total_new = (stack->head->size_init >= block_size_used_new) ? stack->head->size_init : block_size_used_new;
 							vb_mst_block_t *const block_new = (vb_mst_block_t*)malloc((size_t)block_size_total_new);
 							if (block_new) {
 								vb_mst_chunk_t *const chunk0 = (vb_mst_chunk_t*)&((char*)block_new)[BLOCK_T_SIZE];
@@ -292,17 +309,18 @@ void *vb_mst_push(vb_err_t **const err, vb_mst_t *const stack, const int64_t siz
 								block_new->size_used = block_size_used_new;
 								block_new->size_total = block_size_total_new;
 								block->next_block = block_new;
-								stack->size_used += block_size_used_new;
-								stack->size_total += block_size_total_new;
+								stack->head->size_used += block_size_used_new;
+								stack->head->size_total += block_size_total_new;
+								stack->head->size_overhead += BLOCK_T_SIZE + CHUNK_T_SIZE*2;
 								ret_val = (void*)&((char*)chunk0)[CHUNK_T_SIZE];
 							} else {
-								*err = vb_err_new_oom(VB_ERR_MST_OOM, 10, NULL);
+								stack->err = vb_err_new_oom(VB_ERR_MST_OOM, 10, NULL);
 							}
 						} else {
-							*err = vb_err_new_oom(VB_ERR_MST_OOM, 9, NULL);
+							stack->err = vb_err_new_oom(VB_ERR_MST_OOM, 9, NULL);
 						}
-						if (*err) {
-							vb_mst_block_t *block_rev = stack->block;
+						if (stack->err) {
+							vb_mst_block_t *block_rev = stack->head->block;
 							// revert all increments
 							do {
 								block_rev->top_chunk->counter--;
@@ -311,10 +329,10 @@ void *vb_mst_push(vb_err_t **const err, vb_mst_t *const stack, const int64_t siz
 						}
 					}
 				} else {
-					*err = vb_err_new_oom(VB_ERR_MST_OOM, 8, NULL);
+					stack->err = vb_err_new_oom(VB_ERR_MST_OOM, 8, NULL);
 				}
 			} else {
-				*err = vb_err_new(VB_ERR_MST_OVERFLOW, 6, "allocation size overflow", NULL);
+				stack->err = vb_err_new(VB_ERR_MST_OVERFLOW, 6, "allocation size overflow", NULL);
 			}
 		} else if (size == 0) {
 			do {
@@ -322,28 +340,27 @@ void *vb_mst_push(vb_err_t **const err, vb_mst_t *const stack, const int64_t siz
 					block->top_chunk->counter++;
 					block = block->next_block;
 				} else {
-					vb_mst_block_t *block_rev = stack->block;
-					// revert increments until current block
+					vb_mst_block_t *block_rev = stack->head->block;
+					// revert increments to current block
 					while (block_rev != block) {
 						block_rev->top_chunk->counter--;
 						block_rev = block_rev->next_block;
 					};
-					*err = vb_err_new(VB_ERR_MST_OVERFLOW, 5, "push stack overflow", NULL);
+					stack->err = vb_err_new(VB_ERR_MST_OVERFLOW, 5, "push stack overflow", NULL);
 					break;
 				}
 			} while (block);
 		} else {
-			*err = vb_err_new(VB_ERR_MST_UNDERFLOW, 5, "allocation size underflow", NULL);
+			stack->err = vb_err_new(VB_ERR_MST_UNDERFLOW, 5, "allocation size underflow", NULL);
 		}
 	}
 	return ret_val;
 }
 
-void vb_mst_pop(vb_err_t **const err, vb_mst_t *const stack) {
-	assert(err);
+void vb_mst_pop(vb_mst_t *const stack) {
 	assert(stack);
-	if (*err == NULL) {
-		vb_mst_block_t *block = stack->block;
+	if (stack->err == NULL) {
+		vb_mst_block_t *block = stack->head->block;
 		do {
 			if (block->top_chunk->counter)
 				block->top_chunk->counter--;
@@ -351,25 +368,26 @@ void vb_mst_pop(vb_err_t **const err, vb_mst_t *const stack) {
 				const int64_t diff = (int64_t)((char*)block->top_chunk - (char*)block->top_chunk->jump_back);
 				block->top_chunk = block->top_chunk->jump_back;
 				block->size_used -= diff;
-				stack->size_used -= diff;
+				stack->head->size_used -= diff;
+				stack->head->size_overhead -= CHUNK_T_SIZE;
 			}
 			block = block->next_block;
 		} while (block);
 	}
 }
 
-vb_mst_t *vb_mst_destroy(vb_err_t **const err, vb_mst_t *const stack) {
-	assert(err);
-	if (*err == NULL) {
-		if (stack) {
-			vb_mst_block_t *block = stack->block->next_block;
-			free((void*)stack);
+void vb_mst_destroy(vb_mst_t *const stack) {
+	assert(stack);
+	if (stack->err == NULL) {
+		if (stack->head) {
+			vb_mst_block_t *block = stack->head->block->next_block;
+			free((void*)stack->head);
 			while (block) {
 				vb_mst_block_t *const next_block = block->next_block;
 				free((void*)block);
 				block = next_block;
 			}
+			stack->head = NULL;
 		}
 	}
-	return NULL;
 }

@@ -10,7 +10,12 @@
 
 #include <stdalign.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include <vb/err.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct vb_mst_chunk_t {
 	struct vb_mst_chunk_t *jump_back;
@@ -25,25 +30,32 @@ typedef struct vb_mst_block_t {
 } vb_mst_block_t;
 
 typedef struct {
-	void *(*alloc)(vb_err_t **err, void *obj, int64_t size);
-	void *(*free)(vb_err_t **err, void *ptr);
-	void *(*destroy)(vb_err_t **err, void *obj);
 	vb_mst_block_t *block;
 	int64_t size_used;
 	int64_t size_total;
+	int64_t size_overhead;
 	int64_t size_init;
 	int64_t size_total_limit;
+} vb_mst_head_t;
+
+typedef struct {
+	vb_mst_head_t *head;
+	vb_err_t *err;
 } vb_mst_t;
 
-vb_mst_t *vb_mst_new(vb_err_t **err, int64_t size_init, int64_t size_max);
-vb_mst_t *vb_mst_new_0(vb_err_t **err);
-vb_mst_t *vb_mst_new_lmt(vb_err_t **err, int64_t size_init);
-vb_mst_t *vb_mst_new_max(vb_err_t **err, int64_t size_init);
-void *vb_mst_alloc(vb_err_t **err, vb_mst_t *stack, int64_t size);
-void *vb_mst_push(vb_err_t **err, vb_mst_t *stack, int64_t size);
-void vb_mst_pop(vb_err_t **err, vb_mst_t *stack);
-vb_mst_t *vb_mst_destroy(vb_err_t **err, vb_mst_t *stack);
+bool vb_mst_init(vb_mst_t *stack, int64_t size_init, int64_t size_max);
+bool vb_mst_init_empty(vb_mst_t *stack);
+bool vb_mst_init_min(vb_mst_t *stack, int64_t size_init);
+bool vb_mst_init_max(vb_mst_t *stack, int64_t size_init);
+void *vb_mst_alloc(vb_mst_t *stack, int64_t size);
+void *vb_mst_push(vb_mst_t *stack, int64_t size);
+void vb_mst_pop(vb_mst_t *stack);
+void vb_mst_destroy(vb_mst_t *stack);
 
-#define VB_MST_PUSHED(stack) ((stack)->block->top_chunk->counter > 0 || (stack)->block->top_chunk->jump_back)
+#define VB_MST_PUSHED(stack) ((stack)->head->block->top_chunk->counter > 0 || (stack)->head->block->top_chunk->jump_back)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* VBSW_VB_MST_H */
