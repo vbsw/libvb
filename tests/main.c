@@ -12,6 +12,7 @@
 
 void test_err(int *err_line);
 void test_mst(int *err_line);
+void test_mhp(int *err_line);
 
 int main(int argc, char **argv) {
 	int err_line;
@@ -19,5 +20,7 @@ int main(int argc, char **argv) {
 	PRINT_RESULT("err")
 	test_mst(&err_line);
 	PRINT_RESULT("mst")
+	test_mhp(&err_line);
+	PRINT_RESULT("mhp")
 	return 0;
 }

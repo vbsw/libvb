@@ -135,7 +135,6 @@ vb_mem_t *vb_mst_mem_init(vb_mst_t *const stack, vb_mem_t *const mem) {
 }
 
 vb_mem_t *vb_mst_mem_new(vb_mst_t *const stack) {
-	assert(stack);
 	vb_mem_t *const mem = vb_mst_alloc(stack, sizeof(vb_mem_t));
 	return mem ? vb_mst_mem_init(stack, mem) : NULL;
 }
