@@ -8,7 +8,7 @@
 #ifndef VBSW_VB_UTL_H
 #define VBSW_VB_UTL_H
 
-#include <stdint.h>
+#include <vb/err.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,7 +23,13 @@ typedef struct {
 	vb_mem_free_t free;
 	vb_mem_destroy_t destroy;
 	void *obj;
+	vb_err_t **err;
 } vb_mem_t;
+
+#define VB_MEM_ALLOC(a,s) (a)->alloc((a)->obj, s)
+#define VB_MEM_FREE(a,p)  (a)->free((a)->obj, p)
+#define VB_MEM_DESTROY(a) (a)->destroy((a)->obj)
+#define VB_MEM_ERR(a)     (a)->err[0]
 
 #ifdef __cplusplus
 }
