@@ -20,16 +20,16 @@ else
 	CFLAGS += -O2
 endif
 
-TARGET        := $(BUILD_DIR)/vbtests
+TARGET        := $(BUILD_DIR)/vbtest
 BUILD_OBJ_DIR := $(BUILD_DIR)/obj/
 
 SRC_APP  := $(wildcard $(PROJECT_ROOT)src/app/*.c)
 SRC_UTL  := $(wildcard $(PROJECT_ROOT)src/utl/*.c)
-SRC_TST  := $(wildcard $(PROJECT_ROOT)tests/*.c)
+SRC_TST  := $(wildcard $(PROJECT_ROOT)test/*.c)
 
 OBJS_APP := $(patsubst $(PROJECT_ROOT)src/app/%.c, $(BUILD_OBJ_DIR)%.o, $(SRC_APP))
 OBJS_UTL := $(patsubst $(PROJECT_ROOT)src/utl/%.c, $(BUILD_OBJ_DIR)%.o, $(SRC_UTL))
-OBJS_TST := $(patsubst $(PROJECT_ROOT)tests/%.c,   $(BUILD_OBJ_DIR)%.o, $(SRC_TST))
+OBJS_TST := $(patsubst $(PROJECT_ROOT)test/%.c,   $(BUILD_OBJ_DIR)%.o, $(SRC_TST))
 
 # needed for dependency tracking
 CFLAGS += -MMD -MP
@@ -49,7 +49,7 @@ $(OBJS_UTL): $(BUILD_OBJ_DIR)%.o: $(PROJECT_ROOT)src/utl/%.c
 	@mkdir -p $(dir $@)
 	$(CC) -I$(PROJECT_ROOT)include -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
-$(OBJS_TST): $(BUILD_OBJ_DIR)%.o: $(PROJECT_ROOT)tests/%.c
+$(OBJS_TST): $(BUILD_OBJ_DIR)%.o: $(PROJECT_ROOT)test/%.c
 	@mkdir -p $(dir $@)
 	$(CC) -I$(PROJECT_ROOT)include -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 

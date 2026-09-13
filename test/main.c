@@ -17,13 +17,9 @@ void test_mar(int *err_line);
 
 int main(int argc, char **argv) {
 	int err_line;
-	test_err(&err_line);
-	PRINT_RESULT("err")
-	test_mst(&err_line);
-	PRINT_RESULT("mst")
-	test_mhp(&err_line);
-	PRINT_RESULT("mhp")
-	test_mar(&err_line);
-	PRINT_RESULT("mar")
+	test_err(&err_line); PRINT_RESULT("err")
+	test_mst(&err_line); PRINT_RESULT("mst")
+	test_mhp(&err_line); PRINT_RESULT("mhp")
+	test_mar(&err_line); PRINT_RESULT("mar")
 	return 0;
 }
