@@ -37,6 +37,12 @@ vb_err_t *vb_err_free(vb_err_t *err);
 #define VB_ERR_MST_LIMIT_EXCEEDED         7
 #define VB_ERR_MST_OOM                    8
 
+#define VB_ERR_MHP(a)                    (a > 4 && a < 16)
+#define VB_ERR_MHP_UNDERFLOW              5
+#define VB_ERR_MHP_OVERFLOW               6
+#define VB_ERR_MHP_LIMIT_EXCEEDED         7
+#define VB_ERR_MHP_OOM                    8
+
 #ifdef __cplusplus
 }
 #endif

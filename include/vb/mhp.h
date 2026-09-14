@@ -19,24 +19,24 @@ extern "C" {
 #endif
 
 typedef struct vb_mhp_chunk_t {
-	struct vb_mhp_chunk_t *jump_back;
-	int64_t counter;
+	void *ref;
+	size_t size;
 } vb_mhp_chunk_t;
 
 typedef struct vb_mhp_block_t {
 	struct vb_mhp_block_t *next_block;
-	vb_mhp_chunk_t *top_chunk;
-	int64_t size_used;
-	int64_t size_total;
+	vb_mhp_chunk_t *first_free_chunk;
+	size_t size_used;
+	size_t size_total;
 } vb_mhp_block_t;
 
 typedef struct {
 	vb_mhp_block_t *block;
-	int64_t size_used;
-	int64_t size_total;
-	int64_t size_overhead;
-	int64_t size_init;
-	int64_t size_total_limit;
+	size_t size_used;
+	size_t size_total;
+	size_t size_overhead;
+	size_t size_init;
+	size_t size_total_limit;
 } vb_mhp_head_t;
 
 typedef struct {
