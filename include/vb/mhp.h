@@ -20,7 +20,7 @@ extern "C" {
 
 typedef struct vb_mhp_chunk_t {
 	void *ref;
-	size_t size;
+	size_t size_total;
 } vb_mhp_chunk_t;
 
 typedef struct vb_mhp_block_t {
@@ -35,8 +35,8 @@ typedef struct {
 	size_t size_used;
 	size_t size_total;
 	size_t size_overhead;
-	size_t size_init;
-	size_t size_total_limit;
+	size_t size_block_init;
+	size_t size_total_max;
 } vb_mhp_head_t;
 
 typedef struct {
