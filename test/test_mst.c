@@ -17,7 +17,7 @@
 #define CHUNK_T_SIZE  ROUND_UP(sizeof(vb_mst_chunk_t))      // 16
 
 #define STRUCTS_INIT_SIZE (HEAD_T_SIZE + BLOCK_T_SIZE + CHUNK_T_SIZE)  // 96
-#define MAX_ROUND_UP      (MST_INT_MAX - alignof(max_align_t) + 1)
+#define MAX_BEFORE_ROUND_UP      (MST_INT_MAX - alignof(max_align_t) + 1)
 
 #define ASSERT(a) if (!(a)) { *err_line = __LINE__; return; }
 
@@ -31,7 +31,7 @@ static void test_new_0(int *const err_line) {
 		ASSERT(vb_mst_new_max(&mst, init_total))
 		ASSERT(mst.err == NULL)
 		ASSERT(mst.head != NULL)
-		ASSERT(mst.head->size_init == init_total)
+		ASSERT(mst.head->size_block_init == init_total)
 		ASSERT(mst.head->block != NULL)
 		ASSERT(mst.head->block->next_block == NULL)
 		ASSERT(mst.head->block->top_chunk != NULL)
@@ -86,7 +86,7 @@ static void test_push_alloc_0(int *const err_line) {
 		ASSERT(mst.head->block->next_block->top_chunk->jump_back->counter == 0)
 		ASSERT(mst.head->block->next_block->top_chunk->jump_back->jump_back == NULL)
 		ASSERT(mst.head->block->next_block->size_used  == BLOCK_T_SIZE + CHUNK_T_SIZE*2 + ROUND_UP(sizeof(void*))*2)
-		ASSERT(mst.head->block->next_block->size_total == mst.head->size_init)
+		ASSERT(mst.head->block->next_block->size_total == mst.head->size_block_init)
 
 		// release memory
 		vb_mst_destroy(&mst);
@@ -198,7 +198,7 @@ static void test_push_alloc_pop_1(int *const err_line) {
 		// new instance (like test_new_0)
 		ASSERT(vb_mst_new_max(&mst, init_total))
 		ASSERT(mst.err == NULL)
-		ASSERT(mst.head->size_init == init_total)
+		ASSERT(mst.head->size_block_init == init_total)
 		ASSERT(mst.head->size_total - mst.head->size_used == init_free_2)
 		ASSERT(mst.head->block->size_total - mst.head->block->size_used == init_free_2)
 
@@ -275,7 +275,7 @@ static void test_push_alloc_pop_mem(int *const err_line) {
 		// new instance (like test_new_0)
 		ASSERT(vb_mst_new_max(&mst, init_total))
 		ASSERT(mst.err == NULL)
-		ASSERT(mst.head->size_init == init_total)
+		ASSERT(mst.head->size_block_init == init_total)
 		ASSERT(mst.head->size_total - mst.head->size_used == init_free_2)
 		ASSERT(mst.head->block->size_total - mst.head->block->size_used == init_free_2)
 

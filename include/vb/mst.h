@@ -35,8 +35,8 @@ typedef struct {
 	size_t size_used;
 	size_t size_total;
 	size_t size_overhead;
-	size_t size_init;
-	size_t size_total_limit;
+	size_t size_block_init;
+	size_t size_total_max;
 } vb_mst_head_t;
 
 typedef struct {
@@ -49,7 +49,7 @@ void      vb_mst_destroy   (vb_mst_t *stack);
 void*     vb_mst_free      (vb_mst_t *stack, void *ptr);
 vb_mem_t* vb_mst_mem_init  (vb_mst_t *stack, vb_mem_t *mem);
 vb_mem_t* vb_mst_mem_new   (vb_mst_t *stack);
-bool      vb_mst_new       (vb_mst_t *stack, int64_t size_init, int64_t size_max);
+bool      vb_mst_new       (vb_mst_t *stack, int64_t size_init, int64_t size_total_max);
 bool      vb_mst_new_empty (vb_mst_t *stack);
 bool      vb_mst_new_max   (vb_mst_t *stack, int64_t size_init);
 bool      vb_mst_new_min   (vb_mst_t *stack, int64_t size_init);

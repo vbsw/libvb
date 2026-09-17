@@ -17,7 +17,7 @@
 #define BLOCK_T_SIZE  ROUND_UP(sizeof(vb_mar_block_t))
 
 #define STRUCTS_INIT_SIZE (HEAD_T_SIZE + BLOCK_T_SIZE)
-#define MAX_ROUND_UP      (MST_INT_MAX - alignof(max_align_t) + 1)
+#define MAX_BEFORE_ROUND_UP      (MST_INT_MAX - alignof(max_align_t) + 1)
 
 void *vb_mar_alloc(vb_mar_t *const arena, const int64_t size) {
 	assert(arena);
