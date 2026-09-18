@@ -60,7 +60,7 @@ static void test_alloc_0(int *const err_line) {
 		ASSERT(vb_mhp_new_max(&mhp, (int64_t)init_total))
 		ASSERT(mhp.err == NULL)
 
-		// allocation on first block
+		// allocation on first block without left over
 		void *data = vb_mhp_alloc(&mhp, (int64_t)init_free);
 		ASSERT(data != NULL)
 		ASSERT(mhp.err == NULL)
@@ -95,7 +95,7 @@ static void test_alloc_1(int *const err_line) {
 		ASSERT(vb_mhp_new_max(&mhp, (int64_t)init_total))
 		ASSERT(mhp.err == NULL)
 
-		// allocation on second block with rest
+		// allocation on second block with left over
 		void *data = vb_mhp_alloc(&mhp, (int64_t)init_free*2);
 		ASSERT(data != NULL)
 		ASSERT(mhp.err == NULL)
@@ -136,7 +136,7 @@ static void test_alloc_2(int *const err_line) {
 		ASSERT(vb_mhp_new_max(&mhp, (int64_t)init_total))
 		ASSERT(mhp.err == NULL)
 
-		// allocation on second block without rest
+		// allocation on second block without left over
 		void *data = vb_mhp_alloc(&mhp, init_total);
 		ASSERT(data != NULL)
 		ASSERT(mhp.err == NULL)
