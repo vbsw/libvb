@@ -49,7 +49,7 @@ void      vb_mhp_destroy   (vb_mhp_t *heap);
 void*     vb_mhp_free      (vb_mhp_t *heap, void *ptr);
 vb_mem_t* vb_mhp_mem_init  (vb_mhp_t *heap, vb_mem_t *mem);
 vb_mem_t* vb_mhp_mem_new   (vb_mhp_t *heap);
-bool      vb_mhp_new       (vb_mhp_t *heap, int64_t size_init, int64_t size_max);
+bool      vb_mhp_new       (vb_mhp_t *heap, int64_t size_init, int64_t size_total_max);
 bool      vb_mhp_new_empty (vb_mhp_t *heap);
 bool      vb_mhp_new_max   (vb_mhp_t *heap, int64_t size_init);
 bool      vb_mhp_new_min   (vb_mhp_t *heap, int64_t size_init);

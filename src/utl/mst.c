@@ -147,8 +147,8 @@ bool vb_mst_new(vb_mst_t *const stack, const int64_t size_init, const int64_t si
 		if (size_init >= STRUCTS_INIT_SIZE) {
 			if (size_init <= size_total_max) {
 				if (size_total_max <= MAX_BEFORE_ROUND_UP) {
-					const int64_t size_init_up = ROUND_UP(size_init);
-					vb_mst_head_t *const head = (vb_mst_head_t*)malloc((size_t)size_init_up);
+					const size_t size_init_up = (size_t)ROUND_UP(size_init);
+					vb_mst_head_t *const head = (vb_mst_head_t*)malloc(size_init_up);
 					if (head) {
 						vb_mst_chunk_t *const chunk = (vb_mst_chunk_t*)&((char*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
 						vb_mst_block_t *const block = (vb_mst_block_t*)&((char*)head)[HEAD_T_SIZE];
