@@ -16,8 +16,8 @@
 #define BLOCK_T_SIZE  ROUND_UP(sizeof(vb_mst_block_t))      // 32
 #define CHUNK_T_SIZE  ROUND_UP(sizeof(vb_mst_chunk_t))      // 16
 
-#define STRUCTS_INIT_SIZE (HEAD_T_SIZE + BLOCK_T_SIZE + CHUNK_T_SIZE)  // 96
-#define MAX_BEFORE_ROUND_UP      (MST_INT_MAX - alignof(max_align_t) + 1)
+#define STRUCTS_INIT_SIZE   (HEAD_T_SIZE + BLOCK_T_SIZE + CHUNK_T_SIZE)  // 96
+#define MAX_BEFORE_ROUND_UP (MST_INT_MAX - alignof(max_align_t) + 1)
 
 #define ASSERT(a) if (!(a)) { *err_line = __LINE__; return; }
 

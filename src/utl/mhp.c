@@ -146,34 +146,45 @@ void *vb_mhp_free(vb_mhp_t *const heap, void *const ptr) {
 		vb_mhp_chunk_t *const ptr_chunk = (vb_mhp_chunk_t*)&((char*)ptr)[-CHUNK_T_SIZE];
 		vb_mhp_block_t *const block = (vb_mhp_block_t*)ptr_chunk->ref;
 		vb_mhp_chunk_t *curr_free_chunk = block->first_free_chunk;
+		size_t freed_used = ptr_chunk->size_total - CHUNK_T_SIZE;
+		size_t freed_overhead = 0;
 		ptr_chunk->ref = NULL;
 		if (curr_free_chunk) {
 			assert(curr_free_chunk != ptr_chunk);
-			vb_mhp_chunk_t *prev_free_chunk_ref = block->first_free_chunk;
+			vb_mhp_chunk_t *prev_free_chunk = curr_free_chunk;
 			if (curr_free_chunk < ptr_chunk) {
 				curr_free_chunk = (vb_mhp_chunk_t*)curr_free_chunk->ref;
 				while (curr_free_chunk && curr_free_chunk < ptr_chunk) {
-					prev_free_chunk_ref = (vb_mhp_chunk_t*)&prev_free_chunk_ref->ref;
+					prev_free_chunk = (vb_mhp_chunk_t*)prev_free_chunk->ref;
 					curr_free_chunk = (vb_mhp_chunk_t*)curr_free_chunk->ref;
 				}
 			}
 			if (curr_free_chunk) {
-				if (&((char*)ptr_chunk)[ptr_chunk->size_total] == (char*)curr_free_chunk)
+				if (&((char*)ptr_chunk)[ptr_chunk->size_total] == (char*)curr_free_chunk) {
 					ptr_chunk->size_total += curr_free_chunk->size_total;
-				else
+					freed_overhead = CHUNK_T_SIZE;
+				} else {
 					ptr_chunk->ref = (void*)curr_free_chunk;
+				}
 			}
-			if (prev_free_chunk_ref == curr_free_chunk) {
+			if (prev_free_chunk == curr_free_chunk) {
 				block->first_free_chunk = ptr_chunk;
+				// ptr_chunk has been linked to curr_free_chunk in previous if
 			} else {
-				if (&((char*)prev_free_chunk_ref)[prev_free_chunk_ref->size_total] == (char*)ptr_chunk)
-					prev_free_chunk_ref->size_total += ptr_chunk->size_total;
-				else
-					prev_free_chunk_ref->ref = (void*)ptr_chunk;
+				if (&((char*)prev_free_chunk)[prev_free_chunk->size_total] == (char*)ptr_chunk) {
+					prev_free_chunk->size_total += ptr_chunk->size_total;
+					freed_overhead = CHUNK_T_SIZE;
+				} else {
+					prev_free_chunk->ref = (void*)ptr_chunk;
+				}
 			}
 		} else {
 			block->first_free_chunk = ptr_chunk;
 		}
+		freed_used += freed_overhead;
+		block->size_used -= freed_used;
+		heap->head->size_used -= freed_used;
+		heap->head->size_overhead -= freed_overhead;
 	}
 	return NULL;
 }
