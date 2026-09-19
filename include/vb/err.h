@@ -16,13 +16,13 @@ extern "C" {
 
 typedef struct {
 	char *str;
-	uint32_t num1;
-	uint32_t num2;
+	int64_t num1;
+	int64_t num2;
 } vb_err_t;
 
-vb_err_t *vb_err_new(uint32_t num1, uint32_t num2, const char *str1, const char *str2);
-vb_err_t *vb_err_new_oom(uint32_t num1, uint32_t num2, const char *str2);
-vb_err_t *vb_err_free(vb_err_t *err);
+vb_err_t *vb_err_new     (int64_t num1, int64_t num2, const char *str1, const char *str2);
+vb_err_t *vb_err_new_oom (int64_t num1, int64_t num2, const char *str2);
+vb_err_t *vb_err_free    (vb_err_t *err);
 
 #define VB_ERR_NONE                       0
 #define VB_ERR(a)                        (a > 0 && a < 5)

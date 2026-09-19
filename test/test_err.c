@@ -13,28 +13,33 @@
 
 void test_err(int *const err_line) {
 	*err_line = 0;
-	vb_err_t *err = vb_err_new(10, 20, "one", "two");
+	vb_err_t *err = vb_err_new(12, 23, "one", "two");
 	ASSERT(err)
-	ASSERT(strcmp(err->str, "one (10; 20); two") == 0)
+	ASSERT(strcmp(err->str, "one (12; 23); two") == 0)
 	ASSERT(vb_err_free(err) == NULL)
 
-	err = vb_err_new(10, 0, "one", "two");
-	ASSERT(strcmp(err->str, "one (10); two") == 0)
+	err = vb_err_new(12, 0, "one", "two");
+	ASSERT(strcmp(err->str, "one (12); two") == 0)
 	ASSERT(vb_err_free(err) == NULL)
 
-	err = vb_err_new(10, 0, "", "two");
-	ASSERT(strcmp(err->str, "(10); two") == 0)
+	err = vb_err_new(12, 0, "", "two");
+	ASSERT(strcmp(err->str, "(12); two") == 0)
 	ASSERT(vb_err_free(err) == NULL)
 
-	err = vb_err_new(10, 0, "", "");
-	ASSERT(strcmp(err->str, "(10)") == 0)
+	err = vb_err_new(12, 0, "", "");
+	ASSERT(strcmp(err->str, "(12)") == 0)
 	ASSERT(vb_err_free(err) == NULL)
 
-	err = vb_err_new(10, 0, "one", "");
-	ASSERT(strcmp(err->str, "one (10)") == 0)
+	err = vb_err_new(12, 0, "one", "");
+	ASSERT(strcmp(err->str, "one (12)") == 0)
 	ASSERT(vb_err_free(err) == NULL)
 
-	err = vb_err_new(10, 0, "", "two");
-	ASSERT(strcmp(err->str, "(10); two") == 0)
+	err = vb_err_new(12, 0, "", "two");
+	ASSERT(strcmp(err->str, "(12); two") == 0)
+	ASSERT(vb_err_free(err) == NULL)
+
+	err = vb_err_new(-12, -23, "two", "three");
+	ASSERT(err)
+	ASSERT(strcmp(err->str, "two (-12; -23); three") == 0)
 	ASSERT(vb_err_free(err) == NULL)
 }
