@@ -49,6 +49,10 @@ vb_err_t *vb_err_free    (vb_err_t *err);
 #define VB_ERR_MAR_LIMIT_EXCEEDED        15
 #define VB_ERR_MAR_OOM                   16
 
+#define VB_ERR_TME(a)                    (a > 16 && a < 19)
+#define VB_ERR_TME_CLOCK                 17
+#define VB_ERR_TME_MONO                  18
+
 #ifdef __cplusplus
 }
 #endif

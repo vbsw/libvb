@@ -203,7 +203,7 @@ static void test_alloc_mem(int *const err_line) {
 		ASSERT(mem.err == &mar.err)
 		ASSERT(*mem.err == NULL)
 
-		// allocation on first block with left over #1
+		// allocation on first block with left over
 		for (size_t i = 1; i <= 4; i++) {
 			void *data = VB_MEM_ALLOC(&mem, (int64_t)init_free);
 			ASSERT(data != NULL)
