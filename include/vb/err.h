@@ -31,17 +31,23 @@ vb_err_t *vb_err_free(vb_err_t *err);
 #define VB_ERR_STR2_OVERFLOW              3
 #define VB_ERR_NUM2_OVERFLOW              4
 
-#define VB_ERR_MST(a)                    (a > 4 && a < 16)
+#define VB_ERR_MST(a)                    (a > 4 && a < 9)
 #define VB_ERR_MST_UNDERFLOW              5
 #define VB_ERR_MST_OVERFLOW               6
 #define VB_ERR_MST_LIMIT_EXCEEDED         7
 #define VB_ERR_MST_OOM                    8
 
-#define VB_ERR_MHP(a)                    (a > 4 && a < 16)
-#define VB_ERR_MHP_UNDERFLOW              5
-#define VB_ERR_MHP_OVERFLOW               6
-#define VB_ERR_MHP_LIMIT_EXCEEDED         7
-#define VB_ERR_MHP_OOM                    8
+#define VB_ERR_MHP(a)                    (a > 8 && a < 13)
+#define VB_ERR_MHP_UNDERFLOW              9
+#define VB_ERR_MHP_OVERFLOW              10
+#define VB_ERR_MHP_LIMIT_EXCEEDED        11
+#define VB_ERR_MHP_OOM                   12
+
+#define VB_ERR_MAR(a)                    (a > 12 && a < 17)
+#define VB_ERR_MAR_UNDERFLOW             13
+#define VB_ERR_MAR_OVERFLOW              14
+#define VB_ERR_MAR_LIMIT_EXCEEDED        15
+#define VB_ERR_MAR_OOM                   16
 
 #ifdef __cplusplus
 }
