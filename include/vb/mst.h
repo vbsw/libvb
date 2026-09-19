@@ -1,0 +1,64 @@
+/*
+ *          Copyright 2026, Vitali Baumtrok.
+ * Distributed under the Boost Software License, Version 1.0.
+ *     (See accompanying file LICENSE or copy at
+ *        http://www.boost.org/LICENSE_1_0.txt)
+ */
+
+#ifndef VBSW_VB_MST_H
+#define VBSW_VB_MST_H
+
+#include <stdalign.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include "mem.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct vb_mst_chunk_t {
+	struct vb_mst_chunk_t *jump_back;
+	size_t counter;
+} vb_mst_chunk_t;
+
+typedef struct vb_mst_block_t {
+	struct vb_mst_block_t *next_block;
+	vb_mst_chunk_t *top_chunk;
+	size_t size_used;
+	size_t size_total;
+} vb_mst_block_t;
+
+typedef struct {
+	vb_mst_block_t *block;
+	size_t size_used;
+	size_t size_total;
+	size_t size_overhead;
+	size_t size_block_init;
+	size_t size_total_max;
+} vb_mst_head_t;
+
+typedef struct {
+	vb_mst_head_t *head;
+	vb_err_t *err;
+} vb_mst_t;
+
+void*     vb_mst_alloc     (vb_mst_t *stack, int64_t size);
+void      vb_mst_destroy   (vb_mst_t *stack);
+void*     vb_mst_free      (vb_mst_t *stack, void *ptr);
+vb_mem_t* vb_mst_mem_init  (vb_mst_t *stack, vb_mem_t *mem);
+vb_mem_t* vb_mst_mem_new   (vb_mst_t *stack);
+bool      vb_mst_new       (vb_mst_t *stack, int64_t size_init, int64_t size_total_max);
+bool      vb_mst_new_empty (vb_mst_t *stack);
+bool      vb_mst_new_max   (vb_mst_t *stack, int64_t size_init);
+bool      vb_mst_new_min   (vb_mst_t *stack, int64_t size_init);
+void      vb_mst_pop       (vb_mst_t *stack);
+void*     vb_mst_push      (vb_mst_t *stack, int64_t size);
+
+#define VB_MST_PUSHED(stack) ((stack)->head->block->top_chunk->counter > 0 || (stack)->head->block->top_chunk->jump_back)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* VBSW_VB_MST_H */
