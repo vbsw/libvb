@@ -11,7 +11,6 @@
 #include <stdalign.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "err.h"
 #include "mem.h"
 
 #ifdef __cplusplus
