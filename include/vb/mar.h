@@ -11,7 +11,6 @@
 #include <stdalign.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "err.h"
 #include "mem.h"
 
 #ifdef __cplusplus
@@ -20,7 +19,6 @@ extern "C" {
 
 typedef struct vb_mar_block_t {
 	struct vb_mar_block_t *next_block;
-	void *cursor;
 	int64_t size_used;
 	int64_t size_total;
 } vb_mar_block_t;
@@ -30,8 +28,8 @@ typedef struct {
 	int64_t size_used;
 	int64_t size_total;
 	int64_t size_overhead;
-	int64_t size_init;
-	int64_t size_total_limit;
+	int64_t size_block_init;
+	int64_t size_total_max;
 } vb_mar_head_t;
 
 typedef struct {
@@ -44,7 +42,7 @@ void      vb_mar_destroy   (vb_mar_t *arena);
 void*     vb_mar_free      (vb_mar_t *arena, void *ptr);
 vb_mem_t* vb_mar_mem_init  (vb_mar_t *arena, vb_mem_t *mem);
 vb_mem_t* vb_mar_mem_new   (vb_mar_t *arena);
-bool      vb_mar_new       (vb_mar_t *arena, int64_t size_init, int64_t size_max);
+bool      vb_mar_new       (vb_mar_t *arena, int64_t size_init, int64_t size_total_max);
 bool      vb_mar_new_empty (vb_mar_t *arena);
 bool      vb_mar_new_max   (vb_mar_t *arena, int64_t size_init);
 bool      vb_mar_new_min   (vb_mar_t *arena, int64_t size_init);
