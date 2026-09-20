@@ -7,6 +7,7 @@
 
 #include <stddef.h>
 #include <string.h>
+#include <stdalign.h>
 #include <vb/mst.h>
 
 #define MST_INT_MAX   ((sizeof(size_t) >= sizeof(int64_t)) ? INT64_MAX : SIZE_MAX)
@@ -60,7 +61,7 @@ static void test_push_alloc_0(int *const err_line) {
 		ASSERT(mst.head->block->size_total - mst.head->block->size_used == init_free)
 
 		// empty push
-		void *data = vb_mst_push(&mst, 0);
+		void *data = vb_mst_push(&mst);
 		ASSERT(data == NULL)
 		ASSERT(mst.err == NULL)
 		vb_mst_block_t *const first_block = mst.head->block;
@@ -107,7 +108,7 @@ static void test_push_alloc_1(int *const err_line) {
 		ASSERT(mst.err == NULL)
 
 		// empty push (like test_push_alloc_0)
-		void *data = vb_mst_push(&mst, 0);
+		void *data = vb_mst_push(&mst);
 		ASSERT(data == NULL)
 		ASSERT(mst.err == NULL)
 		vb_mst_block_t *const first_block = mst.head->block;
@@ -159,7 +160,7 @@ static void test_push_alloc_pop_0(int *const err_line) {
 		ASSERT(mst.head->block->size_total - mst.head->block->size_used == init_free)
 
 		// empty push (like test_push_alloc_0)
-		void *data = vb_mst_push(&mst, 0);
+		void *data = vb_mst_push(&mst);
 		ASSERT(data == NULL)
 		ASSERT(mst.err == NULL)
 		vb_mst_block_t *first_block = mst.head->block;
@@ -231,7 +232,7 @@ static void test_push_alloc_pop_1(int *const err_line) {
 		ASSERT(mst.head->block->size_total - mst.head->block->size_used == init_free_2)
 
 		// empty push (like test_push_alloc_0)
-		void *data = vb_mst_push(&mst, 0);
+		void *data = vb_mst_push(&mst);
 		ASSERT(data == NULL)
 		ASSERT(mst.err == NULL)
 		vb_mst_block_t *first_block = mst.head->block;
@@ -336,7 +337,7 @@ static void test_push_alloc_pop_mem(int *const err_line) {
 		ASSERT(*mem.err == NULL)
 
 		// empty push (like test_push_alloc_0)
-		void *data = vb_mst_push(&mst, 0);
+		void *data = vb_mst_push(&mst);
 		ASSERT(data == NULL)
 		ASSERT(mst.err == NULL)
 		vb_mst_block_t *first_block = mst.head->block;
