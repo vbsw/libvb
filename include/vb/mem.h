@@ -5,8 +5,8 @@
  *        http://www.boost.org/LICENSE_1_0.txt)
  */
 
-#ifndef VBSW_VB_UTL_H
-#define VBSW_VB_UTL_H
+#ifndef VBSW_VB_MEM_H
+#define VBSW_VB_MEM_H
 
 #include <vb/err.h>
 
@@ -35,4 +35,4 @@ typedef struct {
 }
 #endif
 
-#endif /* VBSW_VB_UTL_H */
+#endif /* VBSW_VB_MEM_H */
