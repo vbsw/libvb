@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <stdalign.h>
 #include <vb/mst.h>
 
 #define MST_INT_MAX   (sizeof(size_t) >= sizeof(int64_t) ? INT64_MAX : SIZE_MAX)
@@ -308,7 +309,11 @@ void vb_mst_pop(vb_mst_t *const stack) {
 	}
 }
 
-void *vb_mst_push(vb_mst_t *const stack, const int64_t size) {
+void *vb_mst_push(vb_mst_t *const stack) {
+	return vb_mst_push_size(stack, 0);
+}
+
+void *vb_mst_push_size(vb_mst_t *const stack, const int64_t size) {
 	assert(stack);
 	assert(stack->head);
 	void *ret_val = NULL;

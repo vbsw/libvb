@@ -8,7 +8,6 @@
 #ifndef VBSW_VB_MST_H
 #define VBSW_VB_MST_H
 
-#include <stdalign.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include "mem.h"
@@ -53,7 +52,8 @@ bool      vb_mst_new_empty (vb_mst_t *stack);
 bool      vb_mst_new_max   (vb_mst_t *stack, int64_t size_init);
 bool      vb_mst_new_min   (vb_mst_t *stack, int64_t size_init);
 void      vb_mst_pop       (vb_mst_t *stack);
-void*     vb_mst_push      (vb_mst_t *stack, int64_t size);
+void*     vb_mst_push      (vb_mst_t *stack);
+void*     vb_mst_push_size (vb_mst_t *stack, int64_t size);
 
 #define VB_MST_PUSHED(stack) ((stack)->head->block->top_chunk->counter > 0 || (stack)->head->block->top_chunk->jump_back)
 
