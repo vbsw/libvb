@@ -8,7 +8,6 @@
 #ifndef VBSW_VB_MHP_H
 #define VBSW_VB_MHP_H
 
-#include <stdalign.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include "mem.h"

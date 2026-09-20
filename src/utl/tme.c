@@ -89,4 +89,3 @@ bool vb_tme_mono_reset(vb_tme_mono_t *const mono) {
 	}
 	return ret_val;
 }
-

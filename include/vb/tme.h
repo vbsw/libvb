@@ -5,8 +5,8 @@
  *        http://www.boost.org/LICENSE_1_0.txt)
  */
 
-#ifndef VBSW_VB_TME
-#define VBSW_VB_TME
+#ifndef VBSW_VB_TME_H
+#define VBSW_VB_TME_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -43,4 +43,4 @@ bool vb_tme_mono_reset    (vb_tme_mono_t *mono);
 }
 #endif
 
-#endif /* VBSW_VB_TME */
+#endif /* VBSW_VB_TME_H */
