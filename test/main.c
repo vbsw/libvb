@@ -8,20 +8,25 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define PRINT_RESULT(a) if (!err_line) printf("%-6s PASS\n", a); else printf("%-6s FAIL (line %d)\n", a, err_line);
+#define PRINT_RESULT_CLM_A(unt) if (!err_line) printf("%-6s %-21s", unt, "PASS"); else printf("%-6s FAIL (line %d%-8s", unt, err_line, ")");
+#define PRINT_RESULT_CLM_B(unt) if (!err_line) printf("%-6s PASS\n", unt); else printf("%-6s FAIL (line %d)\n", unt, err_line);
 
 void test_err(int *err_line);
 void test_mst(int *err_line);
 void test_mhp(int *err_line);
 void test_mar(int *err_line);
 void test_tme(int *err_line);
+void test_fle(int *err_line);
+void test_buf(int *err_line);
 
 int main(int argc, char **argv) {
 	int err_line;
-	test_err(&err_line); PRINT_RESULT("err")
-	test_mst(&err_line); PRINT_RESULT("mst")
-	test_mhp(&err_line); PRINT_RESULT("mhp")
-	test_mar(&err_line); PRINT_RESULT("mar")
-	test_tme(&err_line); PRINT_RESULT("tme")
+	test_err(&err_line); PRINT_RESULT_CLM_A("err")
+	test_mst(&err_line); PRINT_RESULT_CLM_B("mst")
+	test_mhp(&err_line); PRINT_RESULT_CLM_A("mhp")
+	test_mar(&err_line); PRINT_RESULT_CLM_B("mar")
+	test_buf(&err_line); PRINT_RESULT_CLM_A("buf")
+	test_tme(&err_line); PRINT_RESULT_CLM_B("tme")
+	test_fle(&err_line); PRINT_RESULT_CLM_A("fle")
 	return 0;
 }
