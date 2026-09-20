@@ -66,6 +66,9 @@ vb_err_t *vb_err_free    (vb_err_t *err);
 #define VB_ERR_FLE_CANT_CLOSE            26
 #define VB_ERR_FLE_CANT_DETERMINE_PATH   27
 #define VB_ERR_FLE_OOM                   28
+#define VB_ERR_FLE_BUFFER_MISSING        29
+#define VB_ERR_FLE_UNDERFLOW             30
+#define VB_ERR_FLE_OVERFLOW              31
 
 #ifdef __cplusplus
 }
