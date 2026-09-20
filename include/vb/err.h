@@ -5,8 +5,8 @@
  *        http://www.boost.org/LICENSE_1_0.txt)
  */
 
-#ifndef VBSW_VB_ERR
-#define VBSW_VB_ERR
+#ifndef VBSW_VB_ERR_H
+#define VBSW_VB_ERR_H
 
 #include <stdint.h>
 
@@ -53,8 +53,22 @@ vb_err_t *vb_err_free    (vb_err_t *err);
 #define VB_ERR_TME_CLOCK                 17
 #define VB_ERR_TME_MONO                  18
 
+#define VB_ERR_BUF(a)                    (a > 18 && a < 23)
+#define VB_ERR_BUF_UNDERFLOW             19
+#define VB_ERR_BUF_OVERFLOW              20
+#define VB_ERR_BUF_LIMIT_EXCEEDED        21
+#define VB_ERR_BUF_OOM                   22
+
+#define VB_ERR_FLE(a)                    (a > 22 && a < 29)
+#define VB_ERR_FLE_CANT_READ             23
+#define VB_ERR_FLE_CANT_CREATE           24
+#define VB_ERR_FLE_CANT_DELETE           25
+#define VB_ERR_FLE_CANT_CLOSE            26
+#define VB_ERR_FLE_CANT_DETERMINE_PATH   27
+#define VB_ERR_FLE_OOM                   28
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* VBSW_VB_ERR */
+#endif /* VBSW_VB_ERR_H */
