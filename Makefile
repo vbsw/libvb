@@ -38,8 +38,12 @@ CFLAGS += -MMD -MP
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS_APP) $(OBJS_UTL) $(OBJS_TST)
-	$(CC) $(LDFLAGS) -o $@ $^
+$(TARGET): $(OBJS_APP) $(OBJS_UTL) $(OBJS_TST) $(BUILD_DIR)/testfile.txt
+	$(CC) $(LDFLAGS) -o $@ $(OBJS_APP) $(OBJS_UTL) $(OBJS_TST)
+
+$(BUILD_DIR)/testfile.txt: $(PROJECT_ROOT)test/testfile.txt
+	@mkdir -p $(dir $@)
+	cp $< $@
 
 $(OBJS_APP): $(BUILD_OBJ_DIR)%.o: $(PROJECT_ROOT)src/app/%.c
 	@mkdir -p $(dir $@)
