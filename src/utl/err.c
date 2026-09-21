@@ -68,7 +68,7 @@ vb_err_t *vb_err_new(const int64_t num1, const int64_t num2, const char *const s
 			char *const data = (char*)(&err[1]);
 			size_t offset = 0;
 			if (str1len) {
-				memcpy((void*)data, str1, str1len);
+				memcpy(data, str1, str1len);
 				data[str1len] = ' ';
 				offset = str1len+1;
 			}

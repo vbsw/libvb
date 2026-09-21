@@ -39,9 +39,9 @@ static void test_clock_now_utc(int *const err_line) {
 		ASSERT(clock.month > 0)
 		ASSERT(clock.day > 0)
 		ASSERT(clock.hour > 0)
-		ASSERT(clock.minute > 0)
-		ASSERT(clock.second > 0)
-		ASSERT(clock.millis > 0 && clock.millis < 1000)
+		ASSERT(clock.minute >= 0)
+		ASSERT(clock.second >= 0)
+		ASSERT(clock.millis >= 0 && clock.millis < 1000)
 	}
 }
 
