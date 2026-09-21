@@ -11,14 +11,14 @@
 #include <stdalign.h>
 #include <vb/mar.h>
 
-#define MST_INT_MAX   ((sizeof(size_t) >= sizeof(int64_t)) ? INT64_MAX : SIZE_MAX)
+#define MAR_INT_MAX   ((sizeof(size_t) >= sizeof(int64_t)) ? INT64_MAX : SIZE_MAX)
 
 #define ROUND_UP(a)   ((a + alignof(max_align_t) - 1) & ~(alignof(max_align_t) - 1))
 #define HEAD_T_SIZE   ROUND_UP(sizeof(vb_mar_head_t))
 #define BLOCK_T_SIZE  ROUND_UP(sizeof(vb_mar_block_t))
 
 #define STRUCTS_INIT_SIZE   (HEAD_T_SIZE + BLOCK_T_SIZE)
-#define MAX_BEFORE_ROUND_UP (MST_INT_MAX - alignof(max_align_t) + 1)
+#define MAX_BEFORE_ROUND_UP (MAR_INT_MAX - alignof(max_align_t) + 1)
 
 void *vb_mar_alloc(vb_mar_t *const arena, const int64_t size) {
 	assert(arena);
@@ -26,7 +26,7 @@ void *vb_mar_alloc(vb_mar_t *const arena, const int64_t size) {
 	if (arena->err == NULL) {
 		if (size > 0) {
 			if (size <= (int64_t)(MAX_BEFORE_ROUND_UP - STRUCTS_INIT_SIZE)) {
-				const size_t size_up = (size_t)ROUND_UP(size);
+				const int64_t size_up = ROUND_UP(size);
 				if (size_up <= arena->head->size_total_max - arena->head->size_used) {
 					vb_mar_block_t *block = arena->head->block;
 					// per block
@@ -42,11 +42,11 @@ void *vb_mar_alloc(vb_mar_t *const arena, const int64_t size) {
 							block = block->next_block;
 						// create new block
 						} else {
-							const size_t block_size_used_new = size_up + BLOCK_T_SIZE;
-							const size_t total_rest = arena->head->size_total_max - arena->head->size_total;
+							const int64_t block_size_used_new = size_up + BLOCK_T_SIZE;
+							const int64_t total_rest = arena->head->size_total_max - arena->head->size_total;
 							if (block_size_used_new <= total_rest) {
-								const size_t block_size_total_new = (arena->head->size_block_init > block_size_used_new) ? (arena->head->size_block_init <= total_rest ? arena->head->size_block_init : total_rest) : block_size_used_new;
-								vb_mar_block_t *const block_new = (vb_mar_block_t*)malloc(block_size_total_new);
+								const int64_t block_size_total_new = (arena->head->size_block_init > block_size_used_new) ? (arena->head->size_block_init <= total_rest ? arena->head->size_block_init : total_rest) : block_size_used_new;
+								vb_mar_block_t *const block_new = malloc(block_size_total_new);
 								if (block_new) {
 									ret_val = (void*)&((char*)block_new)[BLOCK_T_SIZE];
 									block_new->next_block = NULL;
@@ -83,10 +83,10 @@ void vb_mar_destroy(vb_mar_t *const arena) {
 	if (arena->err == NULL) {
 		if (arena->head) {
 			vb_mar_block_t *block = arena->head->block->next_block;
-			free((void*)arena->head);
+			free(arena->head);
 			while (block) {
 				vb_mar_block_t *const next_block = block->next_block;
-				free((void*)block);
+				free(block);
 				block = next_block;
 			}
 			arena->head = NULL;
@@ -122,8 +122,8 @@ bool vb_mar_new(vb_mar_t *const arena, const int64_t size_init, const int64_t si
 		if (size_init >= STRUCTS_INIT_SIZE) {
 			if (size_init <= size_total_max) {
 				if (size_total_max <= MAX_BEFORE_ROUND_UP) {
-					const size_t size_init_up = (size_t)ROUND_UP(size_init);
-					vb_mar_head_t *const head = (vb_mar_head_t*)malloc(size_init_up);
+					const int64_t size_init_up = ROUND_UP(size_init);
+					vb_mar_head_t *const head = malloc(size_init_up);
 					if (head) {
 						vb_mar_block_t *const block = (vb_mar_block_t*)&((char*)head)[HEAD_T_SIZE];
 						block->next_block = NULL;
@@ -157,8 +157,8 @@ bool vb_mar_new_empty(vb_mar_t *const arena) {
 	assert(arena);
 	bool ret_val = false;
 	if (arena->err == NULL) {
-		const size_t size_init_up = STRUCTS_INIT_SIZE;
-		vb_mar_head_t *const head = (vb_mar_head_t*)malloc(size_init_up);
+		const int64_t size_init_up = STRUCTS_INIT_SIZE;
+		vb_mar_head_t *const head = malloc(size_init_up);
 		if (head) {
 			vb_mar_block_t *const block = (vb_mar_block_t*)&((char*)head)[HEAD_T_SIZE];
 			block->next_block = NULL;
@@ -185,8 +185,8 @@ bool vb_mar_new_max(vb_mar_t *const arena, const int64_t size_init) {
 	if (arena->err == NULL) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
 			if (size_init <= MAX_BEFORE_ROUND_UP) {
-				const size_t size_init_up = (size_t)ROUND_UP(size_init);
-				vb_mar_head_t *const head = (vb_mar_head_t*)malloc(size_init_up);
+				const int64_t size_init_up = ROUND_UP(size_init);
+				vb_mar_head_t *const head = malloc(size_init_up);
 				if (head) {
 					vb_mar_block_t *const block = (vb_mar_block_t*)&((char*)head)[HEAD_T_SIZE];
 					block->next_block = NULL;
@@ -219,8 +219,8 @@ bool vb_mar_new_min(vb_mar_t *const arena, const int64_t size_init) {
 	if (arena->err == NULL) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
 			if (size_init <= MAX_BEFORE_ROUND_UP) {
-				const size_t size_init_up = (size_t)ROUND_UP(size_init);
-				vb_mar_head_t *const head = (vb_mar_head_t*)malloc(size_init_up);
+				const int64_t size_init_up = ROUND_UP(size_init);
+				vb_mar_head_t *const head = malloc(size_init_up);
 				if (head) {
 					vb_mar_block_t *const block = (vb_mar_block_t*)&((char*)head)[HEAD_T_SIZE];
 					block->next_block = NULL;

@@ -18,23 +18,23 @@ extern "C" {
 
 typedef struct vb_mst_chunk_t {
 	struct vb_mst_chunk_t *jump_back;
-	size_t counter;
+	int64_t counter;
 } vb_mst_chunk_t;
 
 typedef struct vb_mst_block_t {
 	struct vb_mst_block_t *next_block;
 	vb_mst_chunk_t *top_chunk;
-	size_t size_used;
-	size_t size_total;
+	int64_t size_used;
+	int64_t size_total;
 } vb_mst_block_t;
 
 typedef struct {
 	vb_mst_block_t *block;
-	size_t size_used;
-	size_t size_total;
-	size_t size_overhead;
-	size_t size_block_init;
-	size_t size_total_max;
+	int64_t size_used;
+	int64_t size_total;
+	int64_t size_overhead;
+	int64_t size_block_init;
+	int64_t size_total_max;
 } vb_mst_head_t;
 
 typedef struct {

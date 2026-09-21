@@ -14,6 +14,8 @@
 
 #define ROUND_UP(a)   ((a + alignof(max_align_t) - 1) & ~(alignof(max_align_t) - 1))
 
+#define CHUNK_T_SIZE  ROUND_UP(sizeof(vb_mst_chunk_t))
+
 #define ASSERT(a) if (!(a)) { *err_line = __LINE__; return; }
 
 static void test_new(int *const err_line) {
@@ -24,7 +26,7 @@ static void test_new(int *const err_line) {
 		ASSERT(buf->data);
 		ASSERT(buf->len == 10);
 		ASSERT(buf->cap == 20);
-		free((void*)buf);
+		free(buf);
 	}
 }
 
@@ -37,7 +39,7 @@ static void test_new_mem(int *const err_line) {
 		vb_mst_new_max(&stack, 1024);
 		vb_mst_push(&stack);
 		vb_mst_mem_init(&stack, &mem);
-		char *stack_data = (char*)&stack.head->block->top_chunk[1] + ROUND_UP(sizeof(vb_buf_t));
+		char *stack_data = (char*)stack.head->block->top_chunk + CHUNK_T_SIZE + ROUND_UP(sizeof(vb_buf_t));
 		ASSERT(err == NULL)
 		ASSERT(stack.head)
 		ASSERT(stack.err == NULL)
@@ -107,19 +109,19 @@ static void test_init_new(int *const err_line) {
 		ASSERT(buf.data);
 		ASSERT(buf.len == 10);
 		ASSERT(buf.cap == 20);
-		free((void*)buf.data);
+		free(buf.data);
 
 		ASSERT(vb_buf_init_new(&buf, 0, 20, NULL, NULL));
 		ASSERT(buf.data);
 		ASSERT(buf.len == 0);
 		ASSERT(buf.cap == 20);
-		free((void*)buf.data);
+		free(buf.data);
 
 		ASSERT(vb_buf_init_new_cap(&buf, 20, NULL, NULL));
 		ASSERT(buf.data);
 		ASSERT(buf.len == 0);
 		ASSERT(buf.cap == 20);
-		free((void*)buf.data);
+		free(buf.data);
 	}
 }
 

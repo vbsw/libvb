@@ -10,15 +10,12 @@
 #include <stdalign.h>
 #include <vb/mhp.h>
 
-#define MST_INT_MAX   ((sizeof(size_t) >= sizeof(int64_t)) ? INT64_MAX : SIZE_MAX)
-
 #define ROUND_UP(a)   ((a + alignof(max_align_t) - 1) & ~(alignof(max_align_t) - 1))
 #define HEAD_T_SIZE   ROUND_UP(sizeof(vb_mhp_head_t))       // 48
 #define BLOCK_T_SIZE  ROUND_UP(sizeof(vb_mhp_block_t))      // 32
 #define CHUNK_T_SIZE  ROUND_UP(sizeof(vb_mhp_chunk_t))      // 16
 
 #define STRUCTS_INIT_SIZE   (HEAD_T_SIZE + BLOCK_T_SIZE + CHUNK_T_SIZE)  // 96
-#define MAX_BEFORE_ROUND_UP (MST_INT_MAX - alignof(max_align_t) + 1)
 
 #define ASSERT(a) if (!(a)) { *err_line = __LINE__; return; }
 

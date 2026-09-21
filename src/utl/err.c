@@ -63,12 +63,12 @@ vb_err_t *vb_err_new(const int64_t num1, const int64_t num2, const char *const s
 		}
 	}
 	if (err == NULL) {
-		err = (vb_err_t*)malloc(err_size);
+		err = malloc(err_size);
 		if (err) {
 			char *const data = (char*)(&err[1]);
 			size_t offset = 0;
 			if (str1len) {
-				memcpy((void*)data, (const void*)str1, str1len);
+				memcpy((void*)data, str1, str1len);
 				data[str1len] = ' ';
 				offset = str1len+1;
 			}
@@ -87,7 +87,7 @@ vb_err_t *vb_err_new(const int64_t num1, const int64_t num2, const char *const s
 			if (str2len) {
 				data[offset++] = ';';
 				data[offset++] = ' ';
-				memcpy((void*)&data[offset], (const void*)str2, str2len);
+				memcpy(&data[offset], str2, str2len);
 				offset += str2len;
 			}
 			data[offset] = '\0';
@@ -108,6 +108,6 @@ vb_err_t *vb_err_new_oom(const int64_t num1, const int64_t num2, const char *con
 
 vb_err_t *vb_err_free(vb_err_t *const err) {
 	if (err && err != &oom_err && err != &s1o_err && err != &s2o_err && err != &n2o_err)
-		free((void*)err);
+		free(err);
 	return NULL;
 }
