@@ -8,8 +8,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define PRINT_RESULT_CLM_A(unt) if (!err_line) printf("%-6s %-21s", unt, "PASS"); else printf("%-6s FAIL (line %d%-8s", unt, err_line, ")");
-#define PRINT_RESULT_CLM_B(unt) if (!err_line) printf("%-6s PASS\n", unt); else printf("%-6s FAIL (line %d)\n", unt, err_line);
+#define PRINT_RESULT_CLM_A(unt) if (!err_line) printf("%-6s %-21s", unt, "PASS"); else printf("%-6s FAIL line %-11d", unt, err_line);
+#define PRINT_RESULT_CLM_B(unt) if (!err_line) printf("%-6s PASS\n", unt); else printf("%-6s FAIL line %d\n", unt, err_line);
 
 void test_err(int *err_line);
 void test_mst(int *err_line);

@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 typedef struct {
-	vb_err_t *err;
+	vb_err_t **err;
 	vb_buf_t *buf;
 	int8_t type;
 	bool exists;
@@ -26,7 +26,7 @@ typedef struct {
 
 bool vb_fle_alloc_path_buffer (vb_fle_t *file, vb_mem_t *mem);
 bool vb_fle_base_name         (vb_fle_t *file);
-bool vb_fle_binary_path       (vb_fle_t *file);
+bool vb_fle_exe_path          (vb_fle_t *file);
 bool vb_fle_dir_name          (vb_fle_t *file);
 bool vb_fle_mkd               (vb_fle_t *file, const char *path);
 bool vb_fle_mkf               (vb_fle_t *file, const char *path);

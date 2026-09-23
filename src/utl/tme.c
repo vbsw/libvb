@@ -12,7 +12,7 @@
 bool vb_tme_clock_now(vb_tme_clock_t *const clock) {
 	assert(clock);
 	bool ret_val = false;
-	if (clock->err == NULL) {
+	if (VB_ERR_IS_NULL(clock)) {
 		struct timespec ts;
 		if (!clock_gettime(CLOCK_REALTIME, &ts)) {
 			struct tm local;
@@ -26,7 +26,7 @@ bool vb_tme_clock_now(vb_tme_clock_t *const clock) {
 			clock->millis = (int16_t)(ts.tv_nsec / 1000000);
 			ret_val = true;
 		} else {
-			clock->err = vb_err_new(VB_ERR_TME_CLOCK, 2, "clock now failed", NULL);
+			vb_err_new(clock->err, VB_ERR_TME_CLOCK, 2, "clock now failed", NULL);
 		}
 	}
 	return ret_val;
@@ -35,7 +35,7 @@ bool vb_tme_clock_now(vb_tme_clock_t *const clock) {
 bool vb_tme_clock_now_utc(vb_tme_clock_t *const clock) {
 	assert(clock);
 	bool ret_val = false;
-	if (clock->err == NULL) {
+	if (VB_ERR_IS_NULL(clock)) {
 		struct timespec ts;
 		if (!clock_gettime(CLOCK_REALTIME, &ts)) {
 			struct tm utc;
@@ -49,7 +49,7 @@ bool vb_tme_clock_now_utc(vb_tme_clock_t *const clock) {
 			clock->millis = (int16_t)(ts.tv_nsec / 1000000);
 			ret_val = true;
 		} else {
-			clock->err = vb_err_new(VB_ERR_TME_CLOCK, 1, "clock UTC now failed", NULL);
+			vb_err_new(clock->err, VB_ERR_TME_CLOCK, 1, "clock UTC now failed", NULL);
 		}
 	}
 	return ret_val;
@@ -59,7 +59,7 @@ bool vb_tme_mono_now(vb_tme_mono_t *const mono) {
 	assert(mono);
 	assert(mono->start);
 	bool ret_val = false;
-	if (mono->err == NULL) {
+	if (VB_ERR_IS_NULL(mono)) {
 		struct timespec ts;
 		if (!clock_gettime(CLOCK_MONOTONIC, &ts)) {
 			const uint64_t now = (uint64_t)ts.tv_sec * 1000000000 + (uint64_t)ts.tv_nsec;
@@ -67,7 +67,7 @@ bool vb_tme_mono_now(vb_tme_mono_t *const mono) {
 			mono->millis = mono->nanos / 1000000;
 			ret_val = true;
 		} else {
-			mono->err = vb_err_new(VB_ERR_TME_MONO, 2, "mono time now failed", NULL);
+			vb_err_new(mono->err, VB_ERR_TME_MONO, 2, "mono time now failed", NULL);
 		}
 	}
 	return ret_val;
@@ -76,7 +76,7 @@ bool vb_tme_mono_now(vb_tme_mono_t *const mono) {
 bool vb_tme_mono_reset(vb_tme_mono_t *const mono) {
 	assert(mono);
 	bool ret_val = false;
-	if (mono->err == NULL) {
+	if (VB_ERR_IS_NULL(mono)) {
 		struct timespec ts;
 		if (!clock_gettime(CLOCK_MONOTONIC, &ts)) {
 			mono->start = (uint64_t)ts.tv_sec * 1000000000 + (uint64_t)ts.tv_nsec;
@@ -84,7 +84,7 @@ bool vb_tme_mono_reset(vb_tme_mono_t *const mono) {
 			mono->millis = 0;
 			ret_val = true;
 		} else {
-			mono->err = vb_err_new(VB_ERR_TME_MONO, 1, "mono time reset failed", NULL);
+			vb_err_new(mono->err, VB_ERR_TME_MONO, 1, "mono time reset failed", NULL);
 		}
 	}
 	return ret_val;

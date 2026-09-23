@@ -20,13 +20,15 @@
 
 static void test_new_0(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mar_t mar = {0};
+		vb_err_t *err = NULL;
+		vb_mar_t mar = {.err = &err};
 		const int64_t init_free  = ROUND_UP(sizeof(void*));
 		const int64_t init_total = STRUCTS_INIT_SIZE + init_free;
 
 		// new instance
 		ASSERT(vb_mar_new_max(&mar, init_total))
-		ASSERT(mar.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mar.err == &err)
 		ASSERT(mar.head != NULL)
 		ASSERT(mar.head->size_block_init == init_total)
 		ASSERT(mar.head->block != NULL)
@@ -41,25 +43,29 @@ static void test_new_0(int *const err_line) {
 
 		// release memory
 		vb_mar_destroy(&mar);
-		ASSERT(mar.head == NULL);
-		ASSERT(mar.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mar.err == &err)
+		ASSERT(mar.head == NULL)
 	}
 }
 
 static void test_alloc_0(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mar_t mar = {0};
+		vb_err_t *err = NULL;
+		vb_mar_t mar = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  //  96
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mar_new_max(&mar, (int64_t)init_total))
-		ASSERT(mar.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mar.err == &err)
 
 		// allocation on first block without left over
 		void *data = vb_mar_alloc(&mar, (int64_t)init_free);
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mar.err == NULL)
+		ASSERT(mar.err == &err)
 		// head
 		ASSERT(mar.head->size_used == init_total)
 		ASSERT(mar.head->size_total == init_total)
@@ -72,25 +78,29 @@ static void test_alloc_0(int *const err_line) {
 
 		// release memory
 		vb_mar_destroy(&mar);
-		ASSERT(mar.head == NULL);
-		ASSERT(mar.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mar.err == &err)
+		ASSERT(mar.head == NULL)
 	}
 }
 
 static void test_alloc_1(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mar_t mar = {0};
+		vb_err_t *err = NULL;
+		vb_mar_t mar = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  //  96
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mar_new_max(&mar, (int64_t)init_total))
-		ASSERT(mar.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mar.err == &err)
 
 		// allocation on second block with left over
 		void *data = vb_mar_alloc(&mar, (int64_t)init_free*2);
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mar.err == NULL)
+		ASSERT(mar.err == &err)
 		// head
 		ASSERT(mar.head->size_used == STRUCTS_INIT_SIZE + BLOCK_T_SIZE + init_free*2)
 		ASSERT(mar.head->size_total == init_total*2)
@@ -107,25 +117,29 @@ static void test_alloc_1(int *const err_line) {
 
 		// release memory
 		vb_mar_destroy(&mar);
-		ASSERT(mar.head == NULL);
-		ASSERT(mar.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mar.err == &err)
+		ASSERT(mar.head == NULL)
 	}
 }
 
 static void test_alloc_2(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mar_t mar = {0};
+		vb_err_t *err = NULL;
+		vb_mar_t mar = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  //  96
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mar_new_max(&mar, (int64_t)init_total))
-		ASSERT(mar.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mar.err == &err)
 
 		// allocation on second block without left over
 		void *data = vb_mar_alloc(&mar, init_total);
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mar.err == NULL)
+		ASSERT(mar.err == &err)
 		// head
 		ASSERT(mar.head->size_used == STRUCTS_INIT_SIZE + BLOCK_T_SIZE + init_total)
 		ASSERT(mar.head->size_total == init_total + BLOCK_T_SIZE + init_total)
@@ -143,26 +157,30 @@ static void test_alloc_2(int *const err_line) {
 
 		// release memory
 		vb_mar_destroy(&mar);
-		ASSERT(mar.head == NULL);
-		ASSERT(mar.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mar.err == &err)
+		ASSERT(mar.head == NULL)
 	}
 }
 
 static void test_alloc_3(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mar_t mar = {0};
+		vb_err_t *err = NULL;
+		vb_mar_t mar = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));          //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free*4;  // 144
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mar_new_max(&mar, (int64_t)init_total))
-		ASSERT(mar.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mar.err == &err)
 
 		// allocation on first block with left over #1
 		for (size_t i = 1; i <= 4; i++) {
 			void *data = vb_mar_alloc(&mar, (int64_t)init_free);
+			ASSERT(err == NULL)
 			ASSERT(data != NULL)
-			ASSERT(mar.err == NULL)
+			ASSERT(mar.err == &err)
 			// head
 			ASSERT(mar.head->size_used == init_total - init_free*(4-i))
 			ASSERT(mar.head->size_total == init_total)
@@ -176,36 +194,41 @@ static void test_alloc_3(int *const err_line) {
 
 		// release memory
 		vb_mar_destroy(&mar);
-		ASSERT(mar.head == NULL);
-		ASSERT(mar.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mar.err == &err)
+		ASSERT(mar.head == NULL)
 	}
 }
 
 static void test_alloc_mem(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mem_t mem = {0};
-		vb_mar_t mar = {0};
+		vb_err_t *err = NULL;
+		vb_mem_t mem = {.err = &err};
+		vb_mar_t mar = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));          //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free*4;  // 144
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mar_new_max(&mar, (int64_t)init_total))
-		ASSERT(mar.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mar.err == &err)
 
 		// init allocator interface
 		ASSERT(vb_mar_mem_init(&mar, &mem) == &mem)
+		ASSERT(err == NULL)
+		ASSERT(mem.err == &err)
 		ASSERT(mem.alloc != NULL)
 		ASSERT(mem.free != NULL)
 		ASSERT(mem.destroy != NULL)
 		ASSERT(mem.obj == (void*)&mar)
-		ASSERT(mem.err == &mar.err)
-		ASSERT(*mem.err == NULL)
+		ASSERT(mem.err == mar.err)
 
 		// allocation on first block with left over
 		for (size_t i = 1; i <= 4; i++) {
 			void *data = VB_MEM_ALLOC(&mem, (int64_t)init_free);
+			ASSERT(err == NULL)
 			ASSERT(data != NULL)
-			ASSERT(mar.err == NULL)
+			ASSERT(mar.err == &err)
 			// head
 			ASSERT(mar.head->size_used == init_total - init_free*(4-i))
 			ASSERT(mar.head->size_total == init_total)
@@ -219,8 +242,9 @@ static void test_alloc_mem(int *const err_line) {
 
 		// release memory
 		vb_mar_destroy(&mar);
-		ASSERT(mar.head == NULL);
-		ASSERT(mar.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mar.err == &err)
+		ASSERT(mar.head == NULL)
 	}
 }
 

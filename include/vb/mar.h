@@ -33,7 +33,7 @@ typedef struct {
 
 typedef struct {
 	vb_mar_head_t *head;
-	vb_err_t *err;
+	vb_err_t **err;
 } vb_mar_t;
 
 void*     vb_mar_alloc     (vb_mar_t *arena, int64_t size);

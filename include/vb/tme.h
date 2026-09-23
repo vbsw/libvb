@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 typedef struct {
-	vb_err_t *err;
+	vb_err_t **err;
 	int16_t year;
 	int16_t millis;
 	int8_t month;
@@ -31,7 +31,7 @@ typedef struct {
 	uint64_t start;
 	int64_t nanos;
 	int64_t millis;
-	vb_err_t *err;
+	vb_err_t **err;
 } vb_tme_mono_t;
 
 bool vb_tme_clock_now     (vb_tme_clock_t *clock);

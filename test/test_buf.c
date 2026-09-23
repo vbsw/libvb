@@ -20,8 +20,10 @@
 
 static void test_new(int *const err_line) {
 	if (*err_line == 0) {
-		vb_buf_t *const buf = vb_buf_new(10, 20, NULL, NULL);
+		vb_err_t *err = NULL;
+		vb_buf_t *const buf = vb_buf_new(10, 20, NULL, &err);
 
+		ASSERT(err == NULL)
 		ASSERT(buf);
 		ASSERT(buf->data);
 		ASSERT(buf->len == 10);
@@ -33,7 +35,7 @@ static void test_new(int *const err_line) {
 static void test_new_mem(int *const err_line) {
 	if (*err_line == 0) {
 		vb_err_t *err = NULL;
-		vb_mst_t stack = {0};
+		vb_mst_t stack = {.err = &err};
 		vb_mem_t mem;
 
 		vb_mst_new_max(&stack, 1024);
@@ -41,8 +43,8 @@ static void test_new_mem(int *const err_line) {
 		vb_mst_mem_init(&stack, &mem);
 		char *stack_data = (char*)stack.head->block->top_chunk + CHUNK_T_SIZE + ROUND_UP(sizeof(vb_buf_t));
 		ASSERT(err == NULL)
+		ASSERT(stack.err == &err)
 		ASSERT(stack.head)
-		ASSERT(stack.err == NULL)
 		ASSERT(mem.alloc != NULL)
 		ASSERT(mem.free != NULL)
 		ASSERT(mem.destroy != NULL)
@@ -51,7 +53,7 @@ static void test_new_mem(int *const err_line) {
 		ASSERT(stack_data)
 
 		int64_t size_used_prev = stack.head->size_used;
-		vb_buf_t *buf1 = vb_buf_new(10, 20, &mem, &err);
+		vb_buf_t *const buf1 = vb_buf_new(10, 20, &mem, &err);
 		ASSERT(err == NULL)
 		ASSERT(buf1)
 		ASSERT(buf1->data)
@@ -65,7 +67,7 @@ static void test_new_mem(int *const err_line) {
 
 		stack_data = stack_data + ROUND_UP(20) + ROUND_UP(sizeof(vb_buf_t));
 		size_used_prev = stack.head->size_used;
-		vb_buf_t *buf2 = vb_buf_new(30, 40, &mem, &err);
+		vb_buf_t *const buf2 = vb_buf_new(30, 40, &mem, &err);
 		ASSERT(err == NULL)
 		ASSERT(buf2)
 		ASSERT(buf2->data)
@@ -87,37 +89,44 @@ static void test_new_err(int *const err_line) {
 		vb_err_t *err = NULL;
 		vb_buf_t *buf = vb_buf_new(-10, 20, NULL, &err);
 
-		ASSERT(buf == NULL);
 		ASSERT(err);
 		ASSERT(err->num1 == VB_ERR_BUF_UNDERFLOW);
 		ASSERT(err->num2 == 1);
-		vb_err_free(err);
+		ASSERT(buf == NULL);
+		err = vb_err_free(err);
+		ASSERT(err == NULL)
 
 		buf = vb_buf_new(40, 20, NULL, &err);
 		ASSERT(err);
 		ASSERT(err->num1 == VB_ERR_BUF_LIMIT_EXCEEDED);
 		ASSERT(err->num2 == 1);
-		vb_err_free(err);
+		ASSERT(buf == NULL);
+		err = vb_err_free(err);
+		ASSERT(err == NULL)
 	}
 }
 
 static void test_init_new(int *const err_line) {
 	if (*err_line == 0) {
+		vb_err_t *err = NULL;
 		vb_buf_t buf = {0};
 
-		ASSERT(vb_buf_init_new(&buf, 10, 20, NULL, NULL));
+		ASSERT(vb_buf_init_new(&buf, 10, 20, NULL, &err));
+		ASSERT(err == NULL)
 		ASSERT(buf.data);
 		ASSERT(buf.len == 10);
 		ASSERT(buf.cap == 20);
 		free(buf.data);
 
-		ASSERT(vb_buf_init_new(&buf, 0, 20, NULL, NULL));
+		ASSERT(vb_buf_init_new(&buf, 0, 20, NULL, &err));
+		ASSERT(err == NULL)
 		ASSERT(buf.data);
 		ASSERT(buf.len == 0);
 		ASSERT(buf.cap == 20);
 		free(buf.data);
 
-		ASSERT(vb_buf_init_new_cap(&buf, 20, NULL, NULL));
+		ASSERT(vb_buf_init_new_cap(&buf, 20, NULL, &err));
+		ASSERT(err == NULL)
 		ASSERT(buf.data);
 		ASSERT(buf.len == 0);
 		ASSERT(buf.cap == 20);

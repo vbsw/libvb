@@ -25,7 +25,7 @@ void *vb_mhp_alloc(vb_mhp_t *const heap, const int64_t size) {
 	assert(heap);
 	assert(heap->head);
 	void *ret_val = NULL;
-	if (heap->err == NULL) {
+	if (VB_ERR_IS_NULL(heap)) {
 		if (size > 0) {
 			if (size <= (int64_t)(MAX_BEFORE_ROUND_UP - STRUCTS_INIT_SIZE - CHUNK_T_SIZE)) {
 				const int64_t size_up = ROUND_UP(size);
@@ -101,22 +101,22 @@ void *vb_mhp_alloc(vb_mhp_t *const heap, const int64_t size) {
 									heap->head->size_used += block_new->size_used;
 									heap->head->size_total += block_size_total_new;
 								} else {
-									heap->err = vb_err_new_oom(VB_ERR_MHP_OOM, 7, NULL);
+									vb_err_new_oom(heap->err, VB_ERR_MHP_OOM, 7, NULL);
 								}
 							} else {
-								heap->err = vb_err_new_oom(VB_ERR_MHP_OOM, 6, NULL);
+								vb_err_new_oom(heap->err, VB_ERR_MHP_OOM, 6, NULL);
 							}
 							break;
 						}
 					}
 				} else {
-					heap->err = vb_err_new_oom(VB_ERR_MHP_OOM, 5, NULL);
+					vb_err_new_oom(heap->err, VB_ERR_MHP_OOM, 5, NULL);
 				}
 			} else {
-				heap->err = vb_err_new(VB_ERR_MHP_OVERFLOW, 4, "allocation size overflow", NULL);
+				vb_err_new(heap->err, VB_ERR_MHP_OVERFLOW, 4, "allocation size overflow", NULL);
 			}
 		} else {
-			heap->err = vb_err_new(VB_ERR_MHP_UNDERFLOW, 4, "allocation size underflow", NULL);
+			vb_err_new(heap->err, VB_ERR_MHP_UNDERFLOW, 4, "allocation size underflow", NULL);
 		}
 	}
 	return ret_val;
@@ -124,7 +124,7 @@ void *vb_mhp_alloc(vb_mhp_t *const heap, const int64_t size) {
 
 void vb_mhp_destroy(vb_mhp_t *const heap) {
 	assert(heap);
-	if (heap->err == NULL) {
+	if (VB_ERR_IS_NULL(heap)) {
 		if (heap->head) {
 			vb_mhp_block_t *block = heap->head->block->next_block;
 			free(heap->head);
@@ -141,7 +141,7 @@ void vb_mhp_destroy(vb_mhp_t *const heap) {
 void *vb_mhp_free(vb_mhp_t *const heap, void *const ptr) {
 	assert(heap);
 	assert(heap->head);
-	if (heap->err == NULL && ptr) {
+	if (VB_ERR_IS_NULL(heap) && ptr) {
 		vb_mhp_chunk_t *const ptr_chunk = (vb_mhp_chunk_t*)&((char*)ptr)[-CHUNK_T_SIZE];
 		vb_mhp_block_t *const block = (vb_mhp_block_t*)ptr_chunk->ref;
 		vb_mhp_chunk_t *curr_free_chunk = block->first_free_chunk;
@@ -195,7 +195,7 @@ vb_mem_t *vb_mhp_mem_init(vb_mhp_t *const heap, vb_mem_t *const mem) {
 	mem->free = (vb_mem_free_t)vb_mhp_free;
 	mem->destroy = (vb_mem_destroy_t)vb_mhp_destroy;
 	mem->obj = (void*)heap;
-	mem->err = &heap->err;
+	mem->err = heap->err;
 	return mem;
 }
 
@@ -207,7 +207,7 @@ vb_mem_t *vb_mhp_mem_new(vb_mhp_t *const heap) {
 bool vb_mhp_new(vb_mhp_t *const heap, const int64_t size_init, const int64_t size_total_max) {
 	assert(heap);
 	bool ret_val = false;
-	if (heap->err == NULL) {
+	if (VB_ERR_IS_NULL(heap)) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
 			if (size_init <= size_total_max) {
 				if (size_total_max <= MAX_BEFORE_ROUND_UP) {
@@ -231,16 +231,16 @@ bool vb_mhp_new(vb_mhp_t *const heap, const int64_t size_init, const int64_t siz
 						heap->head = head;
 						ret_val = true;
 					} else {
-						heap->err = vb_err_new_oom(VB_ERR_MHP_OOM, 1, NULL);
+						vb_err_new_oom(heap->err, VB_ERR_MHP_OOM, 1, NULL);
 					}
 				} else {
-					heap->err = vb_err_new(VB_ERR_MHP_OVERFLOW, 1, "total max size overflow", NULL);
+					vb_err_new(heap->err, VB_ERR_MHP_OVERFLOW, 1, "total max size overflow", NULL);
 				}
 			} else {
-				heap->err = vb_err_new(VB_ERR_MHP_LIMIT_EXCEEDED, VB_ERR_NONE, "initial size exceeds limit", NULL);
+				vb_err_new(heap->err, VB_ERR_MHP_LIMIT_EXCEEDED, VB_ERR_NONE, "initial size exceeds limit", NULL);
 			}
 		} else {
-			heap->err = vb_err_new(VB_ERR_MHP_UNDERFLOW, 1, "initial size underflow", NULL);
+			vb_err_new(heap->err, VB_ERR_MHP_UNDERFLOW, 1, "initial size underflow", NULL);
 		}
 	}
 	return ret_val;
@@ -249,7 +249,7 @@ bool vb_mhp_new(vb_mhp_t *const heap, const int64_t size_init, const int64_t siz
 bool vb_mhp_new_empty(vb_mhp_t *const heap) {
 	assert(heap);
 	bool ret_val = false;
-	if (heap->err == NULL) {
+	if (VB_ERR_IS_NULL(heap)) {
 		const int64_t size_init_up = STRUCTS_INIT_SIZE;
 		vb_mhp_head_t *const head = malloc(size_init_up);
 		if (head) {
@@ -270,7 +270,7 @@ bool vb_mhp_new_empty(vb_mhp_t *const heap) {
 			heap->head = head;
 			ret_val = true;
 		} else {
-			heap->err = vb_err_new_oom(VB_ERR_MHP_OOM, 2, NULL);
+			vb_err_new_oom(heap->err, VB_ERR_MHP_OOM, 2, NULL);
 		}
 	}
 	return ret_val;
@@ -279,7 +279,7 @@ bool vb_mhp_new_empty(vb_mhp_t *const heap) {
 bool vb_mhp_new_max(vb_mhp_t *const heap, const int64_t size_init) {
 	assert(heap);
 	bool ret_val = false;
-	if (heap->err == NULL) {
+	if (VB_ERR_IS_NULL(heap)) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
 			if (size_init <= MAX_BEFORE_ROUND_UP) {
 				const int64_t size_init_up = ROUND_UP(size_init);
@@ -302,13 +302,13 @@ bool vb_mhp_new_max(vb_mhp_t *const heap, const int64_t size_init) {
 					heap->head = head;
 					ret_val = true;
 				} else {
-					heap->err = vb_err_new_oom(VB_ERR_MHP_OOM, 4, NULL);
+					vb_err_new_oom(heap->err, VB_ERR_MHP_OOM, 4, NULL);
 				}
 			} else {
-				heap->err = vb_err_new(VB_ERR_MHP_OVERFLOW, 3, "initial size overflow", NULL);
+				vb_err_new(heap->err, VB_ERR_MHP_OVERFLOW, 3, "initial size overflow", NULL);
 			}
 		} else {
-			heap->err = vb_err_new(VB_ERR_MHP_UNDERFLOW, 3, "initial size underflow", NULL);
+			vb_err_new(heap->err, VB_ERR_MHP_UNDERFLOW, 3, "initial size underflow", NULL);
 		}
 	}
 	return ret_val;
@@ -317,7 +317,7 @@ bool vb_mhp_new_max(vb_mhp_t *const heap, const int64_t size_init) {
 bool vb_mhp_new_min(vb_mhp_t *const heap, const int64_t size_init) {
 	assert(heap);
 	bool ret_val = false;
-	if (heap->err == NULL) {
+	if (VB_ERR_IS_NULL(heap)) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
 			if (size_init <= MAX_BEFORE_ROUND_UP) {
 				const int64_t size_init_up = ROUND_UP(size_init);
@@ -340,13 +340,13 @@ bool vb_mhp_new_min(vb_mhp_t *const heap, const int64_t size_init) {
 					heap->head = head;
 					ret_val = true;
 				} else {
-					heap->err = vb_err_new_oom(VB_ERR_MHP_OOM, 3, NULL);
+					vb_err_new_oom(heap->err, VB_ERR_MHP_OOM, 3, NULL);
 				}
 			} else {
-				heap->err = vb_err_new(VB_ERR_MHP_OVERFLOW, 2, "initial size overflow", NULL);
+				vb_err_new(heap->err, VB_ERR_MHP_OVERFLOW, 2, "initial size overflow", NULL);
 			}
 		} else {
-			heap->err = vb_err_new(VB_ERR_MHP_UNDERFLOW, 2, "initial size underflow", NULL);
+			vb_err_new(heap->err, VB_ERR_MHP_UNDERFLOW, 2, "initial size underflow", NULL);
 		}
 	}
 	return ret_val;

@@ -39,7 +39,7 @@ typedef struct {
 
 typedef struct {
 	vb_mst_head_t *head;
-	vb_err_t *err;
+	vb_err_t **err;
 } vb_mst_t;
 
 void*     vb_mst_alloc     (vb_mst_t *stack, int64_t size);

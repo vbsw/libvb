@@ -21,13 +21,15 @@
 
 static void test_new_0(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mst_t mst = {0};
+		vb_err_t *err = NULL;
+		vb_mst_t mst = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;
 
 		// new instance
 		ASSERT(vb_mst_new_max(&mst, (int64_t)init_total))
-		ASSERT(mst.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
 		ASSERT(mst.head != NULL)
 		ASSERT(mst.head->size_block_init == init_total)
 		ASSERT(mst.head->block != NULL)
@@ -40,27 +42,31 @@ static void test_new_0(int *const err_line) {
 
 		// release memory
 		vb_mst_destroy(&mst);
-		ASSERT(mst.head == NULL);
-		ASSERT(mst.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
+		ASSERT(mst.head == NULL)
 	}
 }
 
 static void test_push_alloc_0(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mst_t mst = {0};
+		vb_err_t *err = NULL;
+		vb_mst_t mst = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*)) + CHUNK_T_SIZE;
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mst_new_max(&mst, (int64_t)init_total))
-		ASSERT(mst.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
 		ASSERT(mst.head->size_total - mst.head->size_used == init_free)
 		ASSERT(mst.head->block->size_total - mst.head->block->size_used == init_free)
 
 		// empty push
 		void *data = vb_mst_push(&mst);
+		ASSERT(err == NULL)
 		ASSERT(data == NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		vb_mst_block_t *const first_block = mst.head->block;
 		ASSERT(first_block != NULL)
 		vb_mst_chunk_t *first_block_chunk = first_block->top_chunk;
@@ -73,8 +79,9 @@ static void test_push_alloc_0(int *const err_line) {
 
 		// allocation on first block without left over
 		data = vb_mst_alloc(&mst, ROUND_UP(sizeof(void*)));
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		ASSERT(first_block == mst.head->block)
 		ASSERT(first_block_chunk != mst.head->block->top_chunk)
 		// top chunk is new
@@ -89,25 +96,29 @@ static void test_push_alloc_0(int *const err_line) {
 
 		// release memory
 		vb_mst_destroy(&mst);
-		ASSERT(mst.head == NULL);
-		ASSERT(mst.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
+		ASSERT(mst.head == NULL)
 	}
 }
 
 static void test_push_alloc_1(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mst_t mst = {0};
+		vb_err_t *err = NULL;
+		vb_mst_t mst = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));         //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;   // 112
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mst_new_max(&mst, (int64_t)init_total))
-		ASSERT(mst.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
 
 		// empty push (like test_push_alloc_0)
 		void *data = vb_mst_push(&mst);
+		ASSERT(err == NULL)
 		ASSERT(data == NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		vb_mst_block_t *const first_block = mst.head->block;
 		ASSERT(first_block != NULL)
 		vb_mst_chunk_t *const first_block_chunk = first_block->top_chunk;
@@ -115,8 +126,9 @@ static void test_push_alloc_1(int *const err_line) {
 
 		// allocation on second block with left over
 		data = vb_mst_alloc(&mst, init_free);
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		// first block
 		ASSERT(first_block == mst.head->block)
 		ASSERT(first_block_chunk == mst.head->block->top_chunk)
@@ -139,27 +151,31 @@ static void test_push_alloc_1(int *const err_line) {
 
 		// release memory
 		vb_mst_destroy(&mst);
-		ASSERT(mst.head == NULL);
-		ASSERT(mst.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
+		ASSERT(mst.head == NULL)
 	}
 }
 
 static void test_push_alloc_pop_0(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mst_t mst = {0};
+		vb_err_t *err = NULL;
+		vb_mst_t mst = {.err = &err};
 		const int64_t init_free  = ROUND_UP(sizeof(void*))*2 + CHUNK_T_SIZE;
 		const int64_t init_total = STRUCTS_INIT_SIZE + init_free;
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mst_new_max(&mst, init_total))
-		ASSERT(mst.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
 		ASSERT(mst.head->size_total - mst.head->size_used == init_free)
 		ASSERT(mst.head->block->size_total - mst.head->block->size_used == init_free)
 
 		// empty push (like test_push_alloc_0)
 		void *data = vb_mst_push(&mst);
+		ASSERT(err == NULL)
 		ASSERT(data == NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		vb_mst_block_t *first_block = mst.head->block;
 		ASSERT(first_block != NULL)
 		vb_mst_chunk_t *const first_block_chunk1 = first_block->top_chunk;
@@ -167,8 +183,9 @@ static void test_push_alloc_pop_0(int *const err_line) {
 
 		// allocation on first block #1
 		data = vb_mst_alloc(&mst, ROUND_UP(sizeof(void*)));
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		ASSERT(first_block == mst.head->block)
 		ASSERT(first_block_chunk1 != mst.head->block->top_chunk)
 		// top chunk is new
@@ -183,8 +200,9 @@ static void test_push_alloc_pop_0(int *const err_line) {
 
 		// allocation on first block #2
 		data = vb_mst_alloc(&mst, ROUND_UP(sizeof(void*)));
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		ASSERT(first_block == mst.head->block)
 		ASSERT(first_block_chunk2 != mst.head->block->top_chunk)
 		// top chunk is new
@@ -199,7 +217,8 @@ static void test_push_alloc_pop_0(int *const err_line) {
 
 		// pop
 		vb_mst_pop(&mst);
-		ASSERT(mst.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
 		ASSERT(first_block_chunk1 == mst.head->block->top_chunk)
 		ASSERT(first_block_chunk1 != NULL)
 		ASSERT(first_block_chunk1->counter == 0)
@@ -209,29 +228,33 @@ static void test_push_alloc_pop_0(int *const err_line) {
 
 		// release memory
 		vb_mst_destroy(&mst);
-		ASSERT(mst.head == NULL);
-		ASSERT(mst.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
+		ASSERT(mst.head == NULL)
 	}
 }
 
 static void test_push_alloc_pop_1(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mst_t mst = {0};
+		vb_err_t *err = NULL;
+		vb_mst_t mst = {.err = &err};
 		const int64_t init_free_1 = ROUND_UP(sizeof(void*)) + CHUNK_T_SIZE; //  32 = 16 + 16
 		const int64_t init_free_2 = init_free_1 + CHUNK_T_SIZE;             //  48 = 32 + 16
 		const int64_t init_total  = STRUCTS_INIT_SIZE + init_free_2;        // 144 = 96 + 48
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mst_new_max(&mst, init_total))
-		ASSERT(mst.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
 		ASSERT(mst.head->size_block_init == init_total)
 		ASSERT(mst.head->size_total - mst.head->size_used == init_free_2)
 		ASSERT(mst.head->block->size_total - mst.head->block->size_used == init_free_2)
 
 		// empty push (like test_push_alloc_0)
 		void *data = vb_mst_push(&mst);
+		ASSERT(err == NULL)
 		ASSERT(data == NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		vb_mst_block_t *first_block = mst.head->block;
 		ASSERT(first_block != NULL)
 		vb_mst_chunk_t *const first_block_chunk1 = first_block->top_chunk;
@@ -239,8 +262,9 @@ static void test_push_alloc_pop_1(int *const err_line) {
 
 		// allocation on first block with left over
 		data = vb_mst_alloc(&mst, ROUND_UP(sizeof(void*)));
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		ASSERT(first_block == mst.head->block)
 		ASSERT(first_block_chunk1 != mst.head->block->top_chunk)
 		// top chunk is new
@@ -257,8 +281,9 @@ static void test_push_alloc_pop_1(int *const err_line) {
 
 		// allocation on second block with left over
 		data = vb_mst_alloc(&mst, init_free_1);
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		// first block
 		ASSERT(first_block == mst.head->block)
 		ASSERT(first_block_chunk2 == mst.head->block->top_chunk)
@@ -282,7 +307,8 @@ static void test_push_alloc_pop_1(int *const err_line) {
 
 		// pop
 		vb_mst_pop(&mst);
-		ASSERT(mst.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
 		// first block
 		ASSERT(first_block == mst.head->block)
 		ASSERT(first_block_chunk1 == mst.head->block->top_chunk)
@@ -304,39 +330,44 @@ static void test_push_alloc_pop_1(int *const err_line) {
 
 		// release memory
 		vb_mst_destroy(&mst);
-		ASSERT(mst.head == NULL);
-		ASSERT(mst.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
+		ASSERT(mst.head == NULL)
 	}
 }
 
 static void test_push_alloc_pop_mem(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mem_t mem = {0};
-		vb_mst_t mst = {0};
+		vb_err_t *err = NULL;
+		vb_mem_t mem = {.err = &err};
+		vb_mst_t mst = {.err = &err};
 		const int64_t init_free_1 = ROUND_UP(sizeof(void*)) + CHUNK_T_SIZE;
 		const int64_t init_free_2 = init_free_1 + CHUNK_T_SIZE;
 		const int64_t init_total  = STRUCTS_INIT_SIZE + init_free_2;
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mst_new_max(&mst, init_total))
-		ASSERT(mst.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
 		ASSERT(mst.head->size_block_init == init_total)
 		ASSERT(mst.head->size_total - mst.head->size_used == init_free_2)
 		ASSERT(mst.head->block->size_total - mst.head->block->size_used == init_free_2)
 
 		// init allocator interface
 		ASSERT(vb_mst_mem_init(&mst, &mem) == &mem)
+		ASSERT(err == NULL)
+		ASSERT(mem.err == &err)
 		ASSERT(mem.alloc != NULL)
 		ASSERT(mem.free != NULL)
 		ASSERT(mem.destroy != NULL)
 		ASSERT(mem.obj == (void*)&mst)
-		ASSERT(mem.err == &mst.err)
-		ASSERT(*mem.err == NULL)
+		ASSERT(mem.err == mst.err)
 
 		// empty push (like test_push_alloc_0)
 		void *data = vb_mst_push(&mst);
+		ASSERT(err == NULL)
 		ASSERT(data == NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		vb_mst_block_t *first_block = mst.head->block;
 		ASSERT(first_block != NULL)
 		vb_mst_chunk_t *const first_block_chunk1 = first_block->top_chunk;
@@ -344,8 +375,9 @@ static void test_push_alloc_pop_mem(int *const err_line) {
 
 		// allocation on first block with left over
 		data = VB_MEM_ALLOC(&mem, ROUND_UP(sizeof(void*)));
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		ASSERT(first_block == mst.head->block)
 		ASSERT(first_block_chunk1 != mst.head->block->top_chunk)
 		// top chunk is new
@@ -362,8 +394,9 @@ static void test_push_alloc_pop_mem(int *const err_line) {
 
 		// allocation on second block with left over
 		data = VB_MEM_ALLOC(&mem, init_free_1);
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mst.err == NULL)
+		ASSERT(mst.err == &err)
 		// first block
 		ASSERT(first_block == mst.head->block)
 		ASSERT(first_block_chunk2 == mst.head->block->top_chunk)
@@ -387,7 +420,8 @@ static void test_push_alloc_pop_mem(int *const err_line) {
 
 		// pop
 		vb_mst_pop(&mst);
-		ASSERT(mst.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
 		// first block
 		ASSERT(first_block == mst.head->block)
 		ASSERT(first_block_chunk1 == mst.head->block->top_chunk)
@@ -409,8 +443,9 @@ static void test_push_alloc_pop_mem(int *const err_line) {
 
 		// release memory
 		vb_mst_destroy(&mst);
-		ASSERT(mst.head == NULL);
-		ASSERT(mst.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mst.err == &err)
+		ASSERT(mst.head == NULL)
 	}
 }
 

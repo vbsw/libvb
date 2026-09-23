@@ -20,9 +20,12 @@ typedef struct {
 	int64_t num2;
 } vb_err_t;
 
-vb_err_t *vb_err_new     (int64_t num1, int64_t num2, const char *str1, const char *str2);
-vb_err_t *vb_err_new_oom (int64_t num1, int64_t num2, const char *str2);
+vb_err_t *vb_err_asgf    (vb_err_t **err, vb_err_t *other_err);
+vb_err_t *vb_err_new     (vb_err_t **err, int64_t num1, int64_t num2, const char *str1, const char *str2);
+vb_err_t *vb_err_new_oom (vb_err_t **err, int64_t num1, int64_t num2, const char *str2);
 vb_err_t *vb_err_free    (vb_err_t *err);
+
+#define VB_ERR_IS_NULL(a) (((a)->err && *(a)->err == NULL) || (a)->err == NULL)
 
 #define VB_ERR_NONE                       0
 #define VB_ERR(a)                        (a > 0 && a < 5)

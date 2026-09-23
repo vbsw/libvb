@@ -39,7 +39,7 @@ typedef struct {
 
 typedef struct {
 	vb_mhp_head_t *head;
-	vb_err_t *err;
+	vb_err_t **err;
 } vb_mhp_t;
 
 void*     vb_mhp_alloc     (vb_mhp_t *heap, int64_t size);

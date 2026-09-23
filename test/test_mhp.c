@@ -21,13 +21,15 @@
 
 static void test_new_0(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mhp_t mhp = {0};
+		vb_err_t *err = NULL;
+		vb_mhp_t mhp = {.err = &err};
 		const int64_t init_free  = ROUND_UP(sizeof(void*));
 		const int64_t init_total = STRUCTS_INIT_SIZE + init_free;
 
 		// new instance
 		ASSERT(vb_mhp_new_max(&mhp, init_total))
-		ASSERT(mhp.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
 		ASSERT(mhp.head != NULL)
 		ASSERT(mhp.head->size_block_init == init_total)
 		ASSERT(mhp.head->block != NULL)
@@ -43,25 +45,29 @@ static void test_new_0(int *const err_line) {
 
 		// release memory
 		vb_mhp_destroy(&mhp);
-		ASSERT(mhp.head == NULL);
-		ASSERT(mhp.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
+		ASSERT(mhp.head == NULL)
 	}
 }
 
 static void test_alloc_0(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mhp_t mhp = {0};
+		vb_err_t *err = NULL;
+		vb_mhp_t mhp = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  // 112
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mhp_new_max(&mhp, (int64_t)init_total))
-		ASSERT(mhp.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
 
 		// allocation on first block without left over
 		void *data = vb_mhp_alloc(&mhp, (int64_t)init_free);
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mhp.err == NULL)
+		ASSERT(mhp.err == &err)
 		// head
 		ASSERT(mhp.head->size_used == init_total)
 		ASSERT(mhp.head->size_total == init_total)
@@ -78,25 +84,29 @@ static void test_alloc_0(int *const err_line) {
 
 		// release memory
 		vb_mhp_destroy(&mhp);
-		ASSERT(mhp.head == NULL);
-		ASSERT(mhp.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
+		ASSERT(mhp.head == NULL)
 	}
 }
 
 static void test_alloc_1(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mhp_t mhp = {0};
+		vb_err_t *err = NULL;
+		vb_mhp_t mhp = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  // 112
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mhp_new_max(&mhp, (int64_t)init_total))
-		ASSERT(mhp.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
 
 		// allocation on second block with left over
 		void *data = vb_mhp_alloc(&mhp, (int64_t)init_free*2);
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mhp.err == NULL)
+		ASSERT(mhp.err == &err)
 		// head
 		ASSERT(mhp.head->size_used == STRUCTS_INIT_SIZE + BLOCK_T_SIZE + CHUNK_T_SIZE*2 + init_free*2)
 		ASSERT(mhp.head->size_total == init_total*2)
@@ -119,25 +129,29 @@ static void test_alloc_1(int *const err_line) {
 
 		// release memory
 		vb_mhp_destroy(&mhp);
-		ASSERT(mhp.head == NULL);
-		ASSERT(mhp.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
+		ASSERT(mhp.head == NULL)
 	}
 }
 
 static void test_alloc_2(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mhp_t mhp = {0};
+		vb_err_t *err = NULL;
+		vb_mhp_t mhp = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  // 112
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mhp_new_max(&mhp, (int64_t)init_total))
-		ASSERT(mhp.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
 
 		// allocation on second block without left over
 		void *data = vb_mhp_alloc(&mhp, init_total);
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mhp.err == NULL)
+		ASSERT(mhp.err == &err)
 		// head
 		ASSERT(mhp.head->size_used == STRUCTS_INIT_SIZE + BLOCK_T_SIZE + CHUNK_T_SIZE + init_total)
 		ASSERT(mhp.head->size_total == init_total + BLOCK_T_SIZE + CHUNK_T_SIZE + init_total)
@@ -161,30 +175,35 @@ static void test_alloc_2(int *const err_line) {
 
 		// release memory
 		vb_mhp_destroy(&mhp);
-		ASSERT(mhp.head == NULL);
-		ASSERT(mhp.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
+		ASSERT(mhp.head == NULL)
 	}
 }
 
 static void test_alloc_free_0(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mhp_t mhp = {0};
+		vb_err_t *err = NULL;
+		vb_mhp_t mhp = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  // 112
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mhp_new_max(&mhp, (int64_t)init_total))
-		ASSERT(mhp.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
 
 		// allocation on first block (like test_alloc_0)
 		void *data = vb_mhp_alloc(&mhp, (int64_t)init_free);
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mhp.err == NULL)
+		ASSERT(mhp.err == &err)
 
 		// free
 		data = vb_mhp_free(&mhp, data);
+		ASSERT(err == NULL)
 		ASSERT(data == NULL)
-		ASSERT(mhp.err == NULL)
+		ASSERT(mhp.err == &err)
 		// head
 		ASSERT(mhp.head->size_used == init_total - init_free)
 		ASSERT(mhp.head->size_total == init_total)
@@ -202,30 +221,35 @@ static void test_alloc_free_0(int *const err_line) {
 
 		// release memory
 		vb_mhp_destroy(&mhp);
-		ASSERT(mhp.head == NULL);
-		ASSERT(mhp.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
+		ASSERT(mhp.head == NULL)
 	}
 }
 
 static void test_alloc_free_1(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mhp_t mhp = {0};
+		vb_err_t *err = NULL;
+		vb_mhp_t mhp = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  // 112
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mhp_new_max(&mhp, (int64_t)init_total))
-		ASSERT(mhp.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
 
 		// allocation on second block (like test_alloc_1)
 		void *data = vb_mhp_alloc(&mhp, (int64_t)init_free*2);
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mhp.err == NULL)
+		ASSERT(mhp.err == &err)
 
 		// free
 		data = vb_mhp_free(&mhp, data);
+		ASSERT(err == NULL)
 		ASSERT(data == NULL)
-		ASSERT(mhp.err == NULL)
+		ASSERT(mhp.err == &err)
 		// head
 		ASSERT(mhp.head->size_used == init_total*2 - init_free*2 - HEAD_T_SIZE)
 		ASSERT(mhp.head->size_total == init_total*2)
@@ -253,35 +277,40 @@ static void test_alloc_free_1(int *const err_line) {
 
 		// release memory
 		vb_mhp_destroy(&mhp);
-		ASSERT(mhp.head == NULL);
-		ASSERT(mhp.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
+		ASSERT(mhp.head == NULL)
 	}
 }
 
 static void test_alloc_mem(int *const err_line) {
 	if (*err_line == 0) {
-		vb_mem_t mem = {0};
-		vb_mhp_t mhp = {0};
+		vb_err_t *err = NULL;
+		vb_mem_t mem = {.err = &err};
+		vb_mhp_t mhp = {.err = &err};
 		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  // 112
 
 		// new instance (like test_new_0)
 		ASSERT(vb_mhp_new_max(&mhp, (int64_t)init_total))
-		ASSERT(mhp.err == NULL)
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
 
 		// init allocator interface
 		ASSERT(vb_mhp_mem_init(&mhp, &mem) == &mem)
+		ASSERT(err == NULL)
+		ASSERT(mem.err == &err)
 		ASSERT(mem.alloc != NULL)
 		ASSERT(mem.free != NULL)
 		ASSERT(mem.destroy != NULL)
 		ASSERT(mem.obj == (void*)&mhp)
-		ASSERT(mem.err == &mhp.err)
-		ASSERT(*mem.err == NULL)
+		ASSERT(mem.err == mhp.err)
 
 		// allocation on second block
 		void *data = VB_MEM_ALLOC(&mem, (int64_t)init_total);
+		ASSERT(err == NULL)
 		ASSERT(data != NULL)
-		ASSERT(mhp.err == NULL)
+		ASSERT(mhp.err == &err)
 		// first block
 		vb_mhp_block_t *const first_block = mhp.head->block;
 		ASSERT(first_block->first_free_chunk != NULL)
@@ -301,8 +330,9 @@ static void test_alloc_mem(int *const err_line) {
 
 		// release memory
 		vb_mhp_destroy(&mhp);
-		ASSERT(mhp.head == NULL);
-		ASSERT(mhp.err == NULL);
+		ASSERT(err == NULL)
+		ASSERT(mhp.err == &err)
+		ASSERT(mhp.head == NULL)
 	}
 }
 

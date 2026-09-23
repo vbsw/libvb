@@ -40,16 +40,16 @@ static bool buf_init_new(vb_buf_t *const buf, const int64_t len, const int64_t c
 								(*err)->num2 = num2a;
 								*mem->err = NULL;
 							} else {
-								*err = vb_err_new_oom(VB_ERR_BUF_OOM, num2a, NULL);
+								vb_err_new_oom(err, VB_ERR_BUF_OOM, num2a, NULL);
 							}
 						} else {
-							*err = vb_err_new_oom(VB_ERR_BUF_OOM, num2a, NULL);
+							vb_err_new_oom(err, VB_ERR_BUF_OOM, num2a, NULL);
 						}
 						buf->len = 0;
 						buf->cap = 0;
 					}
 				} else if (err) {
-					*err = vb_err_new(VB_ERR_BUF_OVERFLOW, num2b, "capacity overflow", NULL);
+					vb_err_new(err, VB_ERR_BUF_OVERFLOW, num2b, "capacity overflow", NULL);
 				}
 			} else {
 				buf->data = NULL;
@@ -58,10 +58,10 @@ static bool buf_init_new(vb_buf_t *const buf, const int64_t len, const int64_t c
 				ret_val = true;
 			}
 		} else if (err) {
-			*err = vb_err_new(VB_ERR_BUF_LIMIT_EXCEEDED, num2c, "length exceeds capacity", NULL);
+			vb_err_new(err, VB_ERR_BUF_LIMIT_EXCEEDED, num2c, "length exceeds capacity", NULL);
 		}
 	} else if (err) {
-		*err = vb_err_new(VB_ERR_BUF_UNDERFLOW, num2d, "length underflow", NULL);
+		vb_err_new(err, VB_ERR_BUF_UNDERFLOW, num2d, "length underflow", NULL);
 	}
 	return ret_val;
 }
@@ -91,20 +91,20 @@ static vb_buf_t *buf_new(const int64_t len, const int64_t cap, vb_mem_t *const m
 							(*err)->num2 = num2a;
 							*mem->err = NULL;
 						} else {
-							*err = vb_err_new_oom(VB_ERR_BUF_OOM, num2a, NULL);
+							vb_err_new_oom(err, VB_ERR_BUF_OOM, num2a, NULL);
 						}
 					} else {
-						*err = vb_err_new_oom(VB_ERR_BUF_OOM, num2a, NULL);
+						vb_err_new_oom(err, VB_ERR_BUF_OOM, num2a, NULL);
 					}
 				}
 			} else if (err) {
-				*err = vb_err_new(VB_ERR_BUF_OVERFLOW, num2b, "capacity overflow", NULL);
+				vb_err_new(err, VB_ERR_BUF_OVERFLOW, num2b, "capacity overflow", NULL);
 			}
 		} else if (err) {
-			*err = vb_err_new(VB_ERR_BUF_LIMIT_EXCEEDED, num2c, "length exceeds capacity", NULL);
+			vb_err_new(err, VB_ERR_BUF_LIMIT_EXCEEDED, num2c, "length exceeds capacity", NULL);
 		}
 	} else if (err) {
-		*err = vb_err_new(VB_ERR_BUF_UNDERFLOW, num2d, "length underflow", NULL);
+		vb_err_new(err, VB_ERR_BUF_UNDERFLOW, num2d, "length underflow", NULL);
 	}
 	return ret_val;
 }
