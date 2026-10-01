@@ -8,22 +8,26 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <stdbool.h>
 #include <vb/err.h>
 
-static vb_err_t oom_err = { "out of memory (1)",      VB_ERR_OUT_OF_MEMORY, VB_ERR_NONE };
-static vb_err_t s1o_err = { "str1 size overflow (2)", VB_ERR_STR1_OVERFLOW, VB_ERR_NONE };
-static vb_err_t s2o_err = { "str2 size overflow (3)", VB_ERR_STR2_OVERFLOW, VB_ERR_NONE };
-static vb_err_t n2o_err = { "num2 size overflow (4)", VB_ERR_NUM2_OVERFLOW, VB_ERR_NONE };
+static vb_err_t oom_err = { NULL, "out of memory (1)", "err.c", "vb_err_new", VB_ERR_OUT_OF_MEMORY, VB_ERR_NONE, 0, 5, 10 };
 
 vb_err_t *vb_err_asgf (vb_err_t **const err, vb_err_t *const other_err) {
 	return err ? *err = other_err : vb_err_free(other_err);
 }
 
-vb_err_t *vb_err_new(vb_err_t **const err, const int64_t num1, const int64_t num2, const char *const str1, const char *const str2) {
+vb_err_t *vb_err_new(vb_err_t **const err, const int64_t num1, const int64_t num2, const char *const str1, const char *const str2, const char *const file_path, const char *const func_name, const size_t line, const size_t len1, const size_t len2) {
 	assert(num1);
+	assert(file_path);
+	assert(func_name);
+	assert(line > 0 && line <= INT32_MAX);
+	assert(len1 > 1 && len1 <= PATH_MAX && file_path[len1-1] == 0);     // path length
+	assert(len2 > 1 && len2 <= 2047 && func_name[len2-1] == 0);         // function name length
 	if (err) {
 		vb_err_t *ret_val = NULL;
-		int64_t n1 = num1 > 0 ? num1 : -num1, n2 = num2 > 0 ? num2 : -num2;
+		int64_t n1 = num1 > 0 ? num1 : -num1, n2 = num2 > 0 ? num2 : -num2, file_name_off = (int64_t)(len1-2);
 		char n1str[22], n2str[22];
 		size_t n1len = 0, n2len = 0;
 		const size_t str1len = (str1 ? strlen(str1) : 0);
@@ -42,29 +46,39 @@ vb_err_t *vb_err_new(vb_err_t **const err, const int64_t num1, const int64_t num
 			if (num2 < 0)
 				n2str[n2len++] = '-';
 		}
+		while (file_name_off >= 0 && file_path[file_name_off] != '/' && file_path[file_name_off] != '\\')
+			file_name_off--;
+		file_name_off++;
+		const size_t file_name_len0 = len1 - (size_t)file_name_off;
 		// string pattern: str1 (num1; num2); str2
 		size_t err_size = sizeof(vb_err_t) + n1len + (num2 != 0 ? n2len + 2 : 0) + 3; // 2 = "; ", 3 = "()\0"
 		if (str1len > 0) {
 			if (err_size + 3 <= SIZE_MAX - str1len) {
 				err_size += (str1len + 1); // 1 = " "
 				if (str2len > 0) {
-					if (err_size + 2 <= SIZE_MAX - str1len) {
+					if (err_size + 2 <= SIZE_MAX - str1len)
 						err_size += (str1len + 2); // 2 = "; "
-					} else {
-						ret_val = &s2o_err;
-						ret_val->num2 = num1;
-					}
+					else
+						ret_val = vb_err_new(err, VB_ERR_SIZE_OVERFLOW, 2, "MAX_SIZE overflow", NULL, VB_ERR_FFL);
 				}
 			} else {
-				ret_val = &s1o_err;
-				ret_val->num2 = num1;
+				ret_val = vb_err_new(err, VB_ERR_SIZE_OVERFLOW, 1, "MAX_SIZE overflow", NULL, VB_ERR_FFL);
 			}
 		} else if (str2len > 0) {
-			if (err_size + 2 <= SIZE_MAX - str1len) {
-				err_size += (str1len + 2); // 2 = "; "
+			if (err_size + 2 <= SIZE_MAX - str2len)
+				err_size += (str2len + 2); // 2 = "; "
+			else
+				ret_val = vb_err_new(err, VB_ERR_SIZE_OVERFLOW, 3, "MAX_SIZE overflow", NULL, VB_ERR_FFL);
+		}
+		if (ret_val == NULL) {
+			if (err_size <= SIZE_MAX - file_name_len0) {
+				err_size += file_name_len0;
+				if (err_size <= SIZE_MAX - len2)
+					err_size += file_name_len0;
+				else
+					ret_val = vb_err_new(err, VB_ERR_SIZE_OVERFLOW, 5, "MAX_SIZE overflow", NULL, VB_ERR_FFL);
 			} else {
-				ret_val = &s2o_err;
-				ret_val->num2 = num1;
+				ret_val = vb_err_new(err, VB_ERR_SIZE_OVERFLOW, 4, "MAX_SIZE overflow", NULL, VB_ERR_FFL);
 			}
 		}
 		if (ret_val == NULL) {
@@ -95,27 +109,43 @@ vb_err_t *vb_err_new(vb_err_t **const err, const int64_t num1, const int64_t num
 					memcpy(&data[offset], str2, str2len);
 					offset += str2len;
 				}
-				data[offset] = '\0';
+				data[offset++] = '\0';
+				memcpy(&data[offset], &file_path[file_name_off], file_name_len0);
+				ret_val->file_name = &data[offset];
+				offset += file_name_len0;
+				memcpy(&data[offset], func_name, len2);
+				ret_val->func_name = &data[offset];
+				ret_val->next_err = NULL;
 				ret_val->str = data;
 				ret_val->num1 = num1;
 				ret_val->num2 = num2;
+				ret_val->file_line = (int32_t)line;
+				ret_val->file_name_len = (int32_t)(file_name_len0 - 1);
+				ret_val->func_name_len = (int32_t)(len2 - 1);
 			} else {
+				oom_err.file_line = (int32_t)__LINE__;
 				ret_val = &oom_err;
-				ret_val->num2 = num1;
 			}
+			vb_err_t **last_err = err;
+			while (*last_err)
+				last_err = (vb_err_t**)&(*last_err)->next_err;
+			*last_err = ret_val;
 		}
-		*err = ret_val;
 		return ret_val;
 	}
 	return NULL;
 }
 
-vb_err_t *vb_err_new_oom(vb_err_t **const err, const int64_t num1, const int64_t num2, const char *const str2) {
-	return vb_err_new(err, num1, num2, "out of memory", str2);
+vb_err_t *vb_err_new_oom(vb_err_t **const err, const int64_t num1, const int64_t num2, const char *const str2, const char *const file_path, const char *const func_name, const size_t line, const size_t len1, const size_t len2) {
+	return vb_err_new(err, num1, num2, "out of memory", str2, file_path, func_name, line, len1, len2);
 }
 
-vb_err_t *vb_err_free(vb_err_t *const err) {
-	if (err && err != &oom_err && err != &s1o_err && err != &s2o_err && err != &n2o_err)
+vb_err_t *vb_err_free(vb_err_t *err) {
+	vb_err_t *next_err = err;
+	while (next_err && next_err != &oom_err) {
+		err = next_err;
+		next_err = next_err->next_err;
 		free(err);
+	}
 	return NULL;
 }

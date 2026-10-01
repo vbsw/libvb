@@ -7,6 +7,8 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <vb/err.h>
+#include <stdbool.h>
 
 #define PRINT_RESULT_CLM_A(unt) if (!err_line) printf("%-6s %-21s", unt, "PASS"); else printf("%-6s FAIL line %-11d", unt, err_line);
 #define PRINT_RESULT_CLM_B(unt) if (!err_line) printf("%-6s PASS\n", unt); else printf("%-6s FAIL line %d\n", unt, err_line);
@@ -28,5 +30,6 @@ int main(int argc, char **argv) {
 	test_buf(&err_line); PRINT_RESULT_CLM_A("buf")
 	test_tme(&err_line); PRINT_RESULT_CLM_B("tme")
 	test_fle(&err_line); PRINT_RESULT_CLM_A("fle")
+
 	return 0;
 }

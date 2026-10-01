@@ -15,24 +15,31 @@ extern "C" {
 #endif
 
 typedef struct {
-	char *str;
+	void *next_err;
+	const char *str;
+	const char *file_name;
+	const char *func_name;
 	int64_t num1;
 	int64_t num2;
+	int32_t file_line;
+	int32_t file_name_len;
+	int32_t func_name_len;
 } vb_err_t;
 
 vb_err_t *vb_err_asgf    (vb_err_t **err, vb_err_t *other_err);
-vb_err_t *vb_err_new     (vb_err_t **err, int64_t num1, int64_t num2, const char *str1, const char *str2);
-vb_err_t *vb_err_new_oom (vb_err_t **err, int64_t num1, int64_t num2, const char *str2);
+vb_err_t *vb_err_new     (vb_err_t **err, int64_t num1, int64_t num2, const char *str1, const char *str2, const char *file_path, const char *func_name, size_t line, size_t len1, size_t len2);
+vb_err_t *vb_err_new_oom (vb_err_t **err, int64_t num1, int64_t num2, const char *str2, const char *file_name, const char *file_path, size_t line, size_t len1, size_t len2);
 vb_err_t *vb_err_free    (vb_err_t *err);
 
-#define VB_ERR_IS_NULL(a) (((a)->err && *(a)->err == NULL) || (a)->err == NULL)
+#define VB_ERR_FFL __FILE__, __func__, __LINE__, sizeof(__FILE__), sizeof(__func__)
+#define VB_ERR_NULL(a) ((a) == NULL || *(a) == NULL)
 
 #define VB_ERR_NONE                       0
 #define VB_ERR(a)                        (a > 0 && a < 5)
 #define VB_ERR_OUT_OF_MEMORY              1
-#define VB_ERR_STR1_OVERFLOW              2
-#define VB_ERR_STR2_OVERFLOW              3
-#define VB_ERR_NUM2_OVERFLOW              4
+#define VB_ERR_SIZE_OVERFLOW              2
+#define VB_ERR_RESERVED1                  3
+#define VB_ERR_RESERVED2                  4
 
 #define VB_ERR_MST(a)                    (a > 4 && a < 9)
 #define VB_ERR_MST_UNDERFLOW              5
