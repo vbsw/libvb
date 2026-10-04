@@ -21,6 +21,7 @@ typedef struct {
 	int64_t cap;
 } vb_buf_t;
 
+void vb_buf_init         (vb_buf_t *buf, char *data, int64_t len, int64_t cap);
 bool vb_buf_init_new     (vb_buf_t *buf, int64_t len, int64_t cap, vb_mem_t *mem, vb_err_t **err);
 bool vb_buf_init_new_cap (vb_buf_t *buf, int64_t cap, vb_mem_t *mem, vb_err_t **err);
 bool vb_buf_init_new_len (vb_buf_t *buf, int64_t len, vb_mem_t *mem, vb_err_t **err);

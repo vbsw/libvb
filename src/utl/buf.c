@@ -102,6 +102,11 @@ static vb_buf_t *buf_new(const int64_t len, const int64_t cap, vb_mem_t *const m
 	return ret_val;
 }
 
+void vb_buf_init(vb_buf_t *const buf, char *const data, const int64_t len, const int64_t cap) {
+	assert(buf);
+	buf->data = data, buf->len = len, buf->cap = cap;
+}
+
 bool vb_buf_init_new(vb_buf_t *const buf, const int64_t len, const int64_t cap, vb_mem_t *const mem, vb_err_t **const err) {
 	return buf_init_new(buf, len, cap, mem, err, 4, 4, 4, 4);
 }
