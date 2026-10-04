@@ -20,6 +20,7 @@ void test_mar(int *err_line);
 void test_tme(int *err_line);
 void test_fle(int *err_line);
 void test_buf(int *err_line);
+void test_tab(int *err_line);
 
 int main(int argc, char **argv) {
 	int err_line;
@@ -30,6 +31,7 @@ int main(int argc, char **argv) {
 	test_buf(&err_line); PRINT_RESULT_CLM_A("buf")
 	test_tme(&err_line); PRINT_RESULT_CLM_B("tme")
 	test_fle(&err_line); PRINT_RESULT_CLM_A("fle")
+	test_tab(&err_line); PRINT_RESULT_CLM_B("tab")
 
 	return 0;
 }
