@@ -15,10 +15,10 @@ static void test_line_begin_end(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa bbb\nccc ddd\reee fff\r\nggg\r";
+	const uint8_t *const line = "aaa bbb\nccc ddd\reee fff\r\nggg\r";
 	const int64_t line_len = (int64_t)strlen(line);
 
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 	ASSERT(tab.err == &err)
 	ASSERT(tab.buf == &buf)
@@ -67,11 +67,11 @@ static void test_element_begin_end(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa bbb\nccc ddd\reee fff\r\nggg\r";
+	const uint8_t *const line = "aaa bbb\nccc ddd\reee fff\r\nggg\r";
 	const int64_t line_len = (int64_t)strlen(line);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next(&tab))
@@ -87,11 +87,11 @@ static void test_element_indent(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa bbb\n\tccc ddd\r\t\teee fff\r\n\t\t\t\tggg\r";
+	const uint8_t *const line = "aaa bbb\n\tccc ddd\r\t\teee fff\r\n\t\t\t\tggg\r";
 	const int64_t line_len = (int64_t)strlen(line);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next(&tab))
@@ -117,11 +117,11 @@ static void test_element(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa   bbb   |   ccc  ddd eee   \r ";
+	const uint8_t *const line = "aaa   bbb   |   ccc  ddd eee   \r ";
 	const int64_t line_len = (int64_t)strlen(line);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next(&tab))
@@ -155,11 +155,11 @@ static void test_comment(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa bbb#ccc ddd|eee fff\r\ngg#g\r";
+	const uint8_t *const line = "aaa bbb#ccc ddd|eee fff\r\ngg#g\r";
 	const int64_t line_len = (int64_t)strlen(line);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next(&tab))
@@ -205,11 +205,11 @@ static void test_inline(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa bbb\\ccc ddd|eee fff\r\nggg\r";
+	const uint8_t *const line = "aaa bbb\\ccc ddd|eee fff\r\nggg\r";
 	const int64_t line_len = (int64_t)strlen(line);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next(&tab))
@@ -274,11 +274,11 @@ static void test_incomplete1(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa bbb";
+	const uint8_t *const line = "aaa bbb";
 	const int64_t line_len = (int64_t)strlen(line);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next(&tab) == false)
@@ -315,20 +315,20 @@ static void test_incomplete2(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const lineAAA = "aaa bbb";
-	const char *const lineCCC = "aaa bbb\nccc ddd";
-	const char *const lineEEE = "aaa bbb\nccc ddd|eee fff\r";
+	const uint8_t *const lineAAA = "aaa bbb";
+	const uint8_t *const lineCCC = "aaa bbb\nccc ddd";
+	const uint8_t *const lineEEE = "aaa bbb\nccc ddd|eee fff\r";
 	const int64_t lineAAA_len = (int64_t)strlen(lineAAA);
 	const int64_t lineCCC_len = (int64_t)strlen(lineCCC);
 	const int64_t lineEEE_len = (int64_t)strlen(lineEEE);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)lineAAA, lineAAA_len, lineAAA_len);
+	vb_buf_init(&buf, (uint8_t*)lineAAA, lineAAA_len, lineAAA_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next(&tab) == false)
 
-	vb_buf_init(&buf, (char*)lineCCC, lineCCC_len, lineCCC_len);
+	vb_buf_init(&buf, (uint8_t*)lineCCC, lineCCC_len, lineCCC_len);
 	ASSERT(vb_tab_next(&tab))             // aaa bbb
 
 	ASSERT(vb_tab_next(&tab) == false)    // ccc ddd...
@@ -348,7 +348,7 @@ static void test_incomplete2(int *const err_line) {
 	ASSERT(tab.next_line_begin == 0)
 
 	const int64_t offset = lineCCC_len - rest;
-	vb_buf_init(&buf, (char*)(lineEEE + offset), lineEEE_len - offset, lineEEE_len - offset);
+	vb_buf_init(&buf, (uint8_t*)(lineEEE + offset), lineEEE_len - offset, lineEEE_len - offset);
 	tab.parse_last_line = true;
 	ASSERT(vb_tab_next(&tab))
 	ASSERT(tab.line_num == 2)
@@ -369,11 +369,11 @@ static void test_incomplete3(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa bbb#ccc ddd|eee fff\r\ngg#g\r";
+	const uint8_t *const line = "aaa bbb#ccc ddd|eee fff\r\ngg#g\r";
 	const int64_t line_len = (int64_t)strlen(line);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next(&tab))
@@ -396,11 +396,11 @@ static void test_reset(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa bbbb#ccc ddd|eee fff\r\ngg#g\r";
+	const uint8_t *const line = "aaa bbbb#ccc ddd|eee fff\r\ngg#g\r";
 	const int64_t line_len = (int64_t)strlen(line);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next(&tab))
@@ -425,10 +425,10 @@ static void test_list1(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tbl_t tbl;
-	const char *const line = "one two   three  ";
+	const uint8_t *const line = "one two   three  ";
 	const int64_t line_len = (int64_t)strlen(line);
 
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tbl_init(&tbl, &buf, 0, line_len);
 	ASSERT(tbl.list_begin == 0)
 	ASSERT(tbl.list_end == line_len)
@@ -463,10 +463,10 @@ static void test_list2(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tbl_t tbl;
-	const char *const line = ",one, two  , three  , ";
+	const uint8_t *const line = ",one, two  , three  , ";
 	const int64_t line_len = (int64_t)strlen(line);
 
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tbl_init(&tbl, &buf, 0, line_len);
 
 	ASSERT(vb_tbl_next(&tbl, ','))     // <empty>
@@ -513,10 +513,10 @@ static void test_list3(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tbl_t tbl;
-	const char *const line = ",,,  ";
+	const uint8_t *const line = ",,,  ";
 	const int64_t line_len = (int64_t)strlen(line);
 
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tbl_init(&tbl, &buf, 0, line_len);
 
 	ASSERT(vb_tbl_next(&tbl, ','))
@@ -556,11 +556,11 @@ static void test_no_inline1(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa bbb\\ccc ddd|eee fff\r\nggg\r";
+	const uint8_t *const line = "aaa bbb\\ccc ddd|eee fff\r\nggg\r";
 	const int64_t line_len = (int64_t)strlen(line);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next(&tab))
@@ -600,11 +600,11 @@ static void test_no_inline2(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa bbb\\ccc ddd|eee fff\r\nggg\r";
+	const uint8_t *const line = "aaa bbb\\ccc ddd|eee fff\r\nggg\r";
 	const int64_t line_len = (int64_t)strlen(line);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next(&tab))
@@ -644,11 +644,11 @@ static void test_no_inline3(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa bbb\\ccc ddd|eee fff\r\ng\\gg hhh\\iii jjj\r";
+	const uint8_t *const line = "aaa bbb\\ccc ddd|eee fff\r\ng\\gg hhh\\iii jjj\r";
 	const int64_t line_len = (int64_t)strlen(line);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next_no_inl(&tab))
@@ -685,11 +685,11 @@ static void test_no_inline4(int *const err_line) {
 	vb_err_t *err = NULL;
 	vb_buf_t buf;
 	vb_tab_t tab;
-	const char *const line = "aaa bbb\\ccc ddd|eee fff\r\ng\\gg hhh\\iii jjj\r";
+	const uint8_t *const line = "aaa bbb\\ccc ddd|eee fff\r\ng\\gg hhh\\iii jjj\r";
 	const int64_t line_len = (int64_t)strlen(line);
 
 	// init (like test_line_begin_end)
-	vb_buf_init(&buf, (char*)line, line_len, line_len);
+	vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
 	vb_tab_init(&tab, &buf, &err);
 
 	ASSERT(vb_tab_next_no_inl(&tab))

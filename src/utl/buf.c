@@ -63,7 +63,7 @@ static vb_buf_t *buf_new(const int64_t len, const int64_t cap, vb_mem_t *const m
 						ret_val = malloc(size_total);
 					if (ret_val) {
 						if (cap != 0)
-							ret_val->data = (char*)ret_val + VB_SZE_ROUND_UP(sizeof(vb_buf_t));
+							ret_val->data = (uint8_t*)ret_val + VB_SZE_ROUND_UP(sizeof(vb_buf_t));
 						else
 							ret_val->data = NULL;
 						ret_val->len = len;
@@ -95,7 +95,7 @@ static vb_buf_t *buf_new(const int64_t len, const int64_t cap, vb_mem_t *const m
 	return ret_val;
 }
 
-void vb_buf_init(vb_buf_t *const buf, char *const data, const int64_t len, const int64_t cap) {
+void vb_buf_init(vb_buf_t *const buf, uint8_t *const data, const int64_t len, const int64_t cap) {
 	assert(buf);
 	buf->data = data, buf->len = len, buf->cap = cap;
 }

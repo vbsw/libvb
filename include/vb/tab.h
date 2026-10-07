@@ -47,7 +47,7 @@ void    vb_tab_val_no_inl     (vb_tab_t *tab);
 
 void    vb_tbl_init     (vb_tbl_t *tbl, vb_buf_t *buf, int64_t list_begin, int64_t list_end);
 void    vb_tbl_key_init (vb_tbl_t *tbl, vb_tab_t *tab);
-bool    vb_tbl_next     (vb_tbl_t *tbl, char separator);
+bool    vb_tbl_next     (vb_tbl_t *tbl, uint8_t separator);
 void    vb_tbl_val_init (vb_tbl_t *tbl, vb_tab_t *tab);
 
 #ifdef __cplusplus

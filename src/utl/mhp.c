@@ -43,9 +43,9 @@ void *vb_mhp_alloc(vb_mhp_t *const heap, const int64_t size) {
 								}
 							}
 							if (curr_free_chunk) {
-								ret_val = (void*)&((char*)curr_free_chunk)[CHUNK_T_SIZE];
+								ret_val = (void*)&((uint8_t*)curr_free_chunk)[CHUNK_T_SIZE];
 								if (curr_free_chunk->size_total - size_up_chunk > CHUNK_T_SIZE) {
-									*prev_free_chunk_ref = (vb_mhp_chunk_t*)&((char*)curr_free_chunk)[size_up_chunk];
+									*prev_free_chunk_ref = (vb_mhp_chunk_t*)&((uint8_t*)curr_free_chunk)[size_up_chunk];
 									(*prev_free_chunk_ref)->ref = curr_free_chunk->ref;
 									(*prev_free_chunk_ref)->size_total = curr_free_chunk->size_total - size_up_chunk;
 									block->size_used += size_up_chunk;
@@ -73,11 +73,11 @@ void *vb_mhp_alloc(vb_mhp_t *const heap, const int64_t size) {
 								const int64_t block_size_total_new = (heap->head->size_block_init > block_size_used_new) ? (heap->head->size_block_init <= total_rest ? heap->head->size_block_init : total_rest) : block_size_used_new;
 								vb_mhp_block_t *const block_new = malloc(block_size_total_new);
 								if (block_new) {
-									vb_mhp_chunk_t *const chunk0 = (vb_mhp_chunk_t*)&((char*)block_new)[BLOCK_T_SIZE];
+									vb_mhp_chunk_t *const chunk0 = (vb_mhp_chunk_t*)&((uint8_t*)block_new)[BLOCK_T_SIZE];
 									const int64_t chunk1_size_total = block_size_total_new - BLOCK_T_SIZE - size_up_chunk;
-									ret_val = (void*)&((char*)chunk0)[CHUNK_T_SIZE];
+									ret_val = (void*)&((uint8_t*)chunk0)[CHUNK_T_SIZE];
 									if (chunk1_size_total > CHUNK_T_SIZE) {
-										vb_mhp_chunk_t *const chunk1 = (vb_mhp_chunk_t*)&((char*)chunk0)[size_up_chunk];
+										vb_mhp_chunk_t *const chunk1 = (vb_mhp_chunk_t*)&((uint8_t*)chunk0)[size_up_chunk];
 										chunk0->size_total = size_up_chunk;
 										chunk1->ref = NULL;
 										chunk1->size_total = chunk1_size_total;
@@ -138,7 +138,7 @@ void *vb_mhp_free(vb_mhp_t *const heap, void *const ptr) {
 	assert(heap);
 	assert(heap->head);
 	if (VB_ERR_NULL(heap->err) && ptr) {
-		vb_mhp_chunk_t *const ptr_chunk = (vb_mhp_chunk_t*)&((char*)ptr)[-CHUNK_T_SIZE];
+		vb_mhp_chunk_t *const ptr_chunk = (vb_mhp_chunk_t*)&((uint8_t*)ptr)[-CHUNK_T_SIZE];
 		vb_mhp_block_t *const block = (vb_mhp_block_t*)ptr_chunk->ref;
 		vb_mhp_chunk_t *curr_free_chunk = block->first_free_chunk;
 		int64_t size_used_freed = ptr_chunk->size_total - CHUNK_T_SIZE;
@@ -155,7 +155,7 @@ void *vb_mhp_free(vb_mhp_t *const heap, void *const ptr) {
 				}
 			}
 			if (curr_free_chunk) {
-				if (&((char*)ptr_chunk)[ptr_chunk->size_total] == (char*)curr_free_chunk) {
+				if (&((uint8_t*)ptr_chunk)[ptr_chunk->size_total] == (uint8_t*)curr_free_chunk) {
 					ptr_chunk->size_total += curr_free_chunk->size_total;
 					size_overhead_freed = CHUNK_T_SIZE;
 				} else {
@@ -166,7 +166,7 @@ void *vb_mhp_free(vb_mhp_t *const heap, void *const ptr) {
 				block->first_free_chunk = ptr_chunk;
 				// ptr_chunk has been linked to curr_free_chunk in previous if
 			} else {
-				if (&((char*)prev_free_chunk)[prev_free_chunk->size_total] == (char*)ptr_chunk) {
+				if (&((uint8_t*)prev_free_chunk)[prev_free_chunk->size_total] == (uint8_t*)ptr_chunk) {
 					prev_free_chunk->size_total += ptr_chunk->size_total;
 					size_overhead_freed = CHUNK_T_SIZE;
 				} else {
@@ -210,8 +210,8 @@ bool vb_mhp_new(vb_mhp_t *const heap, const int64_t size_init, const int64_t siz
 					const int64_t size_init_up = VB_SZE_ROUND_UP(size_init);
 					vb_mhp_head_t *const head = malloc(size_init_up);
 					if (head) {
-						vb_mhp_chunk_t *const chunk = (vb_mhp_chunk_t*)&((char*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
-						vb_mhp_block_t *const block = (vb_mhp_block_t*)&((char*)head)[HEAD_T_SIZE];
+						vb_mhp_chunk_t *const chunk = (vb_mhp_chunk_t*)&((uint8_t*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
+						vb_mhp_block_t *const block = (vb_mhp_block_t*)&((uint8_t*)head)[HEAD_T_SIZE];
 						chunk->ref = NULL;
 						chunk->size_total = size_init_up - HEAD_T_SIZE - BLOCK_T_SIZE;
 						block->next_block = NULL;
@@ -249,8 +249,8 @@ bool vb_mhp_new_empty(vb_mhp_t *const heap) {
 		const int64_t size_init_up = STRUCTS_INIT_SIZE;
 		vb_mhp_head_t *const head = malloc(size_init_up);
 		if (head) {
-			vb_mhp_chunk_t *const chunk = (vb_mhp_chunk_t*)&((char*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
-			vb_mhp_block_t *const block = (vb_mhp_block_t*)&((char*)head)[HEAD_T_SIZE];
+			vb_mhp_chunk_t *const chunk = (vb_mhp_chunk_t*)&((uint8_t*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
+			vb_mhp_block_t *const block = (vb_mhp_block_t*)&((uint8_t*)head)[HEAD_T_SIZE];
 			chunk->ref = NULL;
 			chunk->size_total = size_init_up - HEAD_T_SIZE - BLOCK_T_SIZE;
 			block->next_block = NULL;
@@ -281,8 +281,8 @@ bool vb_mhp_new_max(vb_mhp_t *const heap, const int64_t size_init) {
 				const int64_t size_init_up = VB_SZE_ROUND_UP(size_init);
 				vb_mhp_head_t *const head = malloc(size_init_up);
 				if (head) {
-					vb_mhp_chunk_t *const chunk = (vb_mhp_chunk_t*)&((char*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
-					vb_mhp_block_t *const block = (vb_mhp_block_t*)&((char*)head)[HEAD_T_SIZE];
+					vb_mhp_chunk_t *const chunk = (vb_mhp_chunk_t*)&((uint8_t*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
+					vb_mhp_block_t *const block = (vb_mhp_block_t*)&((uint8_t*)head)[HEAD_T_SIZE];
 					chunk->ref = NULL;
 					chunk->size_total = size_init_up - HEAD_T_SIZE - BLOCK_T_SIZE;
 					block->next_block = NULL;
@@ -319,8 +319,8 @@ bool vb_mhp_new_min(vb_mhp_t *const heap, const int64_t size_init) {
 				const int64_t size_init_up = VB_SZE_ROUND_UP(size_init);
 				vb_mhp_head_t *const head = malloc(size_init_up);
 				if (head) {
-					vb_mhp_chunk_t *const chunk = (vb_mhp_chunk_t*)&((char*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
-					vb_mhp_block_t *const block = (vb_mhp_block_t*)&((char*)head)[HEAD_T_SIZE];
+					vb_mhp_chunk_t *const chunk = (vb_mhp_chunk_t*)&((uint8_t*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
+					vb_mhp_block_t *const block = (vb_mhp_block_t*)&((uint8_t*)head)[HEAD_T_SIZE];
 					chunk->ref = NULL;
 					chunk->size_total = size_init_up - HEAD_T_SIZE - BLOCK_T_SIZE;
 					block->next_block = NULL;

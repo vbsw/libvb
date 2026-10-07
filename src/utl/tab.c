@@ -13,13 +13,13 @@
 #define STATE_INLINE_CHILD    2
 #define STATE_INLINE_SIBLING  3
 
-static int64_t parse_value(char *data, int64_t from, int64_t to, int8_t *state);
-static int64_t skip_whitespace(char *data, int64_t from, int64_t to);
-static int64_t skip_whitespace_reverse(char *data, int64_t from, int64_t to);
+static int64_t parse_value(uint8_t *data, int64_t from, int64_t to, int8_t *state);
+static int64_t skip_whitespace(uint8_t *data, int64_t from, int64_t to);
+static int64_t skip_whitespace_reverse(uint8_t *data, int64_t from, int64_t to);
 
-static bool is_comment(char *const data, const int64_t from, const int64_t to) {
+static bool is_comment(uint8_t *const data, const int64_t from, const int64_t to) {
 	for (int64_t i = from; i < to; i++) {
-		if ((unsigned char)data[i] > 32) {
+		if (data[i] > 32) {
 			if (data[i] == '#')
 				return true;
 			return false;
@@ -40,7 +40,7 @@ static bool parse_inline_child_prefix(vb_tab_t *const tab) {
 	if (tab->key_begin < tab->line_end && tab->buf->data[tab->key_begin] == '\\') {
 		const int64_t key_begin1 = tab->key_begin + 1;
 		if (key_begin1 < tab->line_end) {
-			const char byte = tab->buf->data[key_begin1];
+			const uint8_t byte = tab->buf->data[key_begin1];
 			if (byte != '\\' && byte != '#' && byte != '|') {
 				tab->key_begin += 2;
 				tab->indent++;
@@ -51,11 +51,11 @@ static bool parse_inline_child_prefix(vb_tab_t *const tab) {
 	return false;
 }
 
-static int64_t parse_key(char *const data, const int64_t from, const int64_t to, int8_t *const state) {
+static int64_t parse_key(uint8_t *const data, const int64_t from, const int64_t to, int8_t *const state) {
 	bool escape = false;
 	for (int64_t i = from; i < to; i++) {
-		const char byte = data[i];
-		if ((unsigned char)byte > 32) {
+		const uint8_t byte = data[i];
+		if (byte > 32) {
 			if (byte == '\\') {
 				escape = !escape;
 			} else if (byte == '#') {
@@ -108,7 +108,7 @@ static void parse_key_value(vb_tab_t *const tab) {
 static bool parse_line_bounds(vb_tab_t *const tab) {
 	const int64_t bytes_len = tab->buf->len;
 	for (int64_t i = tab->next_line_begin; i < bytes_len; i++) {
-		const char byte = tab->buf->data[i];
+		const uint8_t byte = tab->buf->data[i];
 		if (byte == '\r') {
 			const int64_t i1 = i + 1;
 			if (i1 < bytes_len) {
@@ -147,11 +147,11 @@ static bool parse_line_bounds(vb_tab_t *const tab) {
 	return false;
 }
 
-static int64_t parse_value(char *const data, const int64_t from, const int64_t to, int8_t *const state) {
+static int64_t parse_value(uint8_t *const data, const int64_t from, const int64_t to, int8_t *const state) {
 	bool escape = false;
 	for (int64_t i = from; i < to; i++) {
-		const char byte = data[i];
-		if ((unsigned char)byte > 32) {
+		const uint8_t byte = data[i];
+		if (byte > 32) {
 			if (byte == '\\') {
 				escape = !escape;
 			} else if (byte == '#') {
@@ -180,32 +180,32 @@ static int64_t parse_value(char *const data, const int64_t from, const int64_t t
 	return to;
 }
 
-static int64_t skip_non_whitespace(char *const data, const int64_t from, const int64_t to) {
+static int64_t skip_non_whitespace(uint8_t *const data, const int64_t from, const int64_t to) {
 	for (int64_t i = from; i < to; i++)
-		if ((unsigned char)data[i] <= 32)
+		if (data[i] <= 32)
 			return i;
 	return to;
 }
 
-static int64_t skip_whitespace(char *const data, const int64_t from, const int64_t to) {
+static int64_t skip_whitespace(uint8_t *const data, const int64_t from, const int64_t to) {
 	for (int64_t i = from; i < to; i++)
-		if ((unsigned char)data[i] > 32)
+		if (data[i] > 32)
 			return i;
 	return to;
 }
 
-static int64_t skip_whitespace_and_char(char *const data, const int64_t from, const int64_t to, const char char_to_skip) {
+static int64_t skip_whitespace_and_char(uint8_t *const data, const int64_t from, const int64_t to, const uint8_t char_to_skip) {
 	for (int64_t i = from; i < to; i++) {
-		const char byte = data[i];
-		if ((unsigned char)byte > 32 && byte != char_to_skip)
+		const uint8_t byte = data[i];
+		if (byte > 32 && byte != char_to_skip)
 			return i;
 	}
 	return to;
 }
 
-static int64_t skip_whitespace_reverse(char *const data, const int64_t from, const int64_t to) {
+static int64_t skip_whitespace_reverse(uint8_t *const data, const int64_t from, const int64_t to) {
 	for (int64_t i = to - 1; i >= from; i--)
-		if ((unsigned char)data[i] > 32)
+		if (data[i] > 32)
 			return i+1;
 	return from;
 }
@@ -362,16 +362,16 @@ void vb_tbl_key_init(vb_tbl_t *const tbl, vb_tab_t *const tab) {
 	tbl->separator_begin = tab->key_begin - 1;
 }
 
-bool vb_tbl_next(vb_tbl_t *const tbl, const char separator) {
+bool vb_tbl_next(vb_tbl_t *const tbl, const uint8_t separator) {
 	assert(tbl);
 	assert(tbl->buf);
 	for (int64_t i = tbl->separator_begin + 1; i < tbl->list_end; i++) {
-		const char byte = tbl->buf->data[i];
+		const uint8_t byte = tbl->buf->data[i];
 		if (byte == separator && separator != ' ') {
 			tbl->entry_begin = i, tbl->entry_end = i, tbl->separator_begin = i, tbl->entry_len = 0;
 			tbl->entry_idx++;
 			return true;
-		} else if ((unsigned char)byte > 32) {
+		} else if (byte > 32) {
 			tbl->entry_begin = i;
 			tbl->separator_begin = tbl->list_end;
 			for (int64_t j = i + 1; j < tbl->list_end; j++) {

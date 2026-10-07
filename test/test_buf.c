@@ -41,7 +41,7 @@ static void test_new_mem(int *const err_line) {
 		vb_mst_new_max(&stack, 1024);
 		vb_mst_push(&stack);
 		vb_mst_mem_init(&stack, &mem);
-		char *stack_data = (char*)stack.head->block->top_chunk + CHUNK_T_SIZE + ROUND_UP(sizeof(vb_buf_t));
+		uint8_t *stack_data = (uint8_t*)stack.head->block->top_chunk + CHUNK_T_SIZE + ROUND_UP(sizeof(vb_buf_t));
 		ASSERT(err == NULL)
 		ASSERT(stack.err == &err)
 		ASSERT(stack.head)
@@ -61,7 +61,7 @@ static void test_new_mem(int *const err_line) {
 		ASSERT(buf1->cap == 20)
 		ASSERT(size_used_prev != stack.head->size_used)
 		for (int i = 0; i < 5; i++) {
-			stack_data[i] = 'A'+(char)i;
+			stack_data[i] = 'A'+(uint8_t)i;
 			ASSERT(buf1->data[i] == stack_data[i])
 		}
 
@@ -76,7 +76,7 @@ static void test_new_mem(int *const err_line) {
 		ASSERT(buf1 < buf2)
 		ASSERT(size_used_prev != stack.head->size_used)
 		for (int i = 0; i < 5; i++) {
-			stack_data[i] = 'A'+(char)i;
+			stack_data[i] = 'A'+(uint8_t)i;
 			ASSERT(buf1->data[i] == stack_data[i])
 		}
 

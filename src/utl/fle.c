@@ -73,7 +73,7 @@ bool vb_fle_exe_path(vb_fle_t *const file) {
 	return ret_val;
 }
 
-bool vb_fle_mkd(vb_fle_t *const file, const char *const path) {
+bool vb_fle_mkd(vb_fle_t *const file, const uint8_t *const path) {
 	assert(file);
 	bool ret_val = false;
 	if (VB_ERR_NULL(file->err)) {
@@ -90,7 +90,7 @@ bool vb_fle_mkd(vb_fle_t *const file, const char *const path) {
 	return ret_val;
 }
 
-bool vb_fle_mkf(vb_fle_t *const file, const char *const path) {
+bool vb_fle_mkf(vb_fle_t *const file, const uint8_t *const path) {
 	assert(file);
 	bool ret_val = false;
 	if (VB_ERR_NULL(file->err)) {
@@ -112,7 +112,7 @@ bool vb_fle_mkf(vb_fle_t *const file, const char *const path) {
 	return ret_val;
 }
 
-bool vb_fle_rm(vb_fle_t *const file, const char *const path) {
+bool vb_fle_rm(vb_fle_t *const file, const uint8_t *const path) {
 	assert(file);
 	bool ret_val = false;
 	if (VB_ERR_NULL(file->err)) {
@@ -136,7 +136,7 @@ bool vb_fle_rm(vb_fle_t *const file, const char *const path) {
 	return ret_val;
 }
 
-bool vb_fle_set_base_name(vb_fle_t *const file, const char *const base_name) {
+bool vb_fle_set_base_name(vb_fle_t *const file, const uint8_t *const base_name) {
 	assert(file);
 	bool ret_val = false;
 	if (VB_ERR_NULL(file->err)) {
@@ -175,7 +175,7 @@ bool vb_fle_set_base_name(vb_fle_t *const file, const char *const base_name) {
 	return ret_val;
 }
 
-bool vb_fle_stats(vb_fle_t *const file, const char *const path) {
+bool vb_fle_stats(vb_fle_t *const file, const uint8_t *const path) {
 	assert(file);
 	bool ret_val = false;
 	if (VB_ERR_NULL(file->err)) {

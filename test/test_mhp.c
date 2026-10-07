@@ -75,7 +75,7 @@ static void test_alloc_0(int *const err_line) {
 		// first block
 		vb_mhp_block_t *const first_block = mhp.head->block;
 		ASSERT(first_block->first_free_chunk == NULL)
-		vb_mhp_chunk_t *const first_block_chunk = (vb_mhp_chunk_t*)&((char*)first_block)[BLOCK_T_SIZE];
+		vb_mhp_chunk_t *const first_block_chunk = (vb_mhp_chunk_t*)&((uint8_t*)first_block)[BLOCK_T_SIZE];
 		ASSERT(first_block_chunk->ref == (void*)first_block)
 		ASSERT(first_block_chunk->size_total == CHUNK_T_SIZE + init_free)
 		ASSERT(first_block->next_block == NULL)
@@ -121,7 +121,7 @@ static void test_alloc_1(int *const err_line) {
 		// second block
 		vb_mhp_block_t *const second_block = first_block->next_block;
 		ASSERT(second_block->first_free_chunk != NULL)
-		vb_mhp_chunk_t *const second_block_chunk = (vb_mhp_chunk_t*)&((char*)second_block)[BLOCK_T_SIZE];
+		vb_mhp_chunk_t *const second_block_chunk = (vb_mhp_chunk_t*)&((uint8_t*)second_block)[BLOCK_T_SIZE];
 		ASSERT(second_block_chunk->ref == (void*)second_block)
 		ASSERT(second_block_chunk->size_total == CHUNK_T_SIZE + init_free*2)
 		ASSERT(second_block->size_used  == BLOCK_T_SIZE + CHUNK_T_SIZE*2 + init_free*2)
@@ -166,7 +166,7 @@ static void test_alloc_2(int *const err_line) {
 		// second block
 		vb_mhp_block_t *const second_block = first_block->next_block;
 		ASSERT(second_block->first_free_chunk == NULL)
-		vb_mhp_chunk_t *const second_block_chunk = (vb_mhp_chunk_t*)&((char*)second_block)[BLOCK_T_SIZE];
+		vb_mhp_chunk_t *const second_block_chunk = (vb_mhp_chunk_t*)&((uint8_t*)second_block)[BLOCK_T_SIZE];
 		ASSERT(second_block_chunk->ref == (void*)second_block)
 		ASSERT(second_block_chunk->size_total == CHUNK_T_SIZE + init_total)
 		ASSERT(second_block->size_used  == BLOCK_T_SIZE + CHUNK_T_SIZE + init_total)
@@ -211,7 +211,7 @@ static void test_alloc_free_0(int *const err_line) {
 		// first block
 		vb_mhp_block_t *const first_block = mhp.head->block;
 		ASSERT(first_block->first_free_chunk != NULL)
-		vb_mhp_chunk_t *const first_block_chunk = (vb_mhp_chunk_t*)&((char*)first_block)[BLOCK_T_SIZE];
+		vb_mhp_chunk_t *const first_block_chunk = (vb_mhp_chunk_t*)&((uint8_t*)first_block)[BLOCK_T_SIZE];
 		ASSERT(first_block_chunk == first_block->first_free_chunk)
 		ASSERT(first_block_chunk->ref == NULL)
 		ASSERT(first_block_chunk->size_total == CHUNK_T_SIZE + init_free)
@@ -257,7 +257,7 @@ static void test_alloc_free_1(int *const err_line) {
 		// first block
 		vb_mhp_block_t *const first_block = mhp.head->block;
 		ASSERT(first_block->first_free_chunk != NULL)
-		vb_mhp_chunk_t *const first_block_chunk = (vb_mhp_chunk_t*)&((char*)first_block)[BLOCK_T_SIZE];
+		vb_mhp_chunk_t *const first_block_chunk = (vb_mhp_chunk_t*)&((uint8_t*)first_block)[BLOCK_T_SIZE];
 		ASSERT(first_block_chunk == first_block->first_free_chunk)
 		ASSERT(first_block_chunk->ref == NULL)
 		ASSERT(first_block_chunk->size_total == CHUNK_T_SIZE + init_free)
@@ -267,7 +267,7 @@ static void test_alloc_free_1(int *const err_line) {
 		// second block
 		vb_mhp_block_t *const second_block = first_block->next_block;
 		ASSERT(second_block->first_free_chunk != NULL)
-		vb_mhp_chunk_t *const second_block_chunk = (vb_mhp_chunk_t*)&((char*)second_block)[BLOCK_T_SIZE];
+		vb_mhp_chunk_t *const second_block_chunk = (vb_mhp_chunk_t*)&((uint8_t*)second_block)[BLOCK_T_SIZE];
 		ASSERT(second_block_chunk == second_block->first_free_chunk)
 		ASSERT(second_block_chunk->ref == NULL)
 		ASSERT(second_block_chunk->size_total == init_total - BLOCK_T_SIZE)
@@ -321,7 +321,7 @@ static void test_alloc_mem(int *const err_line) {
 		// second block
 		vb_mhp_block_t *const second_block = first_block->next_block;
 		ASSERT(second_block->first_free_chunk == NULL)
-		vb_mhp_chunk_t *const second_block_chunk = (vb_mhp_chunk_t*)&((char*)second_block)[BLOCK_T_SIZE];
+		vb_mhp_chunk_t *const second_block_chunk = (vb_mhp_chunk_t*)&((uint8_t*)second_block)[BLOCK_T_SIZE];
 		ASSERT(second_block_chunk->ref == (void*)second_block)
 		ASSERT(second_block_chunk->size_total == CHUNK_T_SIZE + init_total)
 		ASSERT(second_block->size_used  == BLOCK_T_SIZE + CHUNK_T_SIZE + init_total)

@@ -28,11 +28,11 @@ bool vb_fle_alloc_path_buffer (vb_fle_t *file, vb_mem_t *mem);
 bool vb_fle_base_name         (vb_fle_t *file);
 bool vb_fle_exe_path          (vb_fle_t *file);
 bool vb_fle_dir_name          (vb_fle_t *file);
-bool vb_fle_mkd               (vb_fle_t *file, const char *path);
-bool vb_fle_mkf               (vb_fle_t *file, const char *path);
-bool vb_fle_rm                (vb_fle_t *file, const char *path);
-bool vb_fle_set_base_name     (vb_fle_t *file, const char *base_name);
-bool vb_fle_stats             (vb_fle_t *file, const char *path);
+bool vb_fle_mkd               (vb_fle_t *file, const uint8_t *path);
+bool vb_fle_mkf               (vb_fle_t *file, const uint8_t *path);
+bool vb_fle_rm                (vb_fle_t *file, const uint8_t *path);
+bool vb_fle_set_base_name     (vb_fle_t *file, const uint8_t *base_name);
+bool vb_fle_stats             (vb_fle_t *file, const uint8_t *path);
 
 #define VB_FLE_FILE  0
 #define VB_FLE_DIR   1
