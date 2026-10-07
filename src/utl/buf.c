@@ -6,16 +6,9 @@
  */
 
 #include <assert.h>
-#include <stddef.h>
-#include <stdalign.h>
 #include <stdlib.h>
+#include <vb/sze.h>
 #include <vb/buf.h>
-
-#define BUF_INT_MAX   (sizeof(size_t) >= sizeof(int64_t) ? INT64_MAX : SIZE_MAX)
-
-#define ROUND_UP(a)   ((a + alignof(max_align_t) - 1) & ~(alignof(max_align_t) - 1))
-
-#define MAX_BEFORE_ROUND_UP (BUF_INT_MAX - alignof(max_align_t) + 1 - ROUND_UP(sizeof(vb_buf_t)))
 
 static bool buf_init_new(vb_buf_t *const buf, const int64_t len, const int64_t cap, vb_mem_t *const mem, vb_err_t **const err, const int64_t num2a, const int64_t num2b, const int64_t num2c, const int64_t num2d) {
 	assert(buf);
@@ -24,7 +17,7 @@ static bool buf_init_new(vb_buf_t *const buf, const int64_t len, const int64_t c
 		if (len >= 0) {
 			if (len <= cap) {
 				if (cap != 0) {
-					if (cap <= MAX_BEFORE_ROUND_UP) {
+					if (VB_SZE_MAX_OK_S(cap, alignof(max_align_t) - 1 + VB_SZE_ROUND_UP(sizeof(vb_buf_t)))) {
 						if (mem)
 							buf->data = VB_MEM_ALLOC(mem, cap);
 						else
@@ -62,15 +55,15 @@ static vb_buf_t *buf_new(const int64_t len, const int64_t cap, vb_mem_t *const m
 	if (VB_ERR_NULL(err)) {
 		if (len >= 0) {
 			if (len <= cap) {
-				if (cap <= MAX_BEFORE_ROUND_UP) {
-					const int64_t size_total = cap + ROUND_UP(sizeof(vb_buf_t));
+				if (VB_SZE_MAX_OK_S(cap, alignof(max_align_t) - 1 + VB_SZE_ROUND_UP(sizeof(vb_buf_t)))) {
+					const int64_t size_total = cap + VB_SZE_ROUND_UP(sizeof(vb_buf_t));
 					if (mem)
 						ret_val = VB_MEM_ALLOC(mem, size_total);
 					else
 						ret_val = malloc(size_total);
 					if (ret_val) {
 						if (cap != 0)
-							ret_val->data = (char*)ret_val + ROUND_UP(sizeof(vb_buf_t));
+							ret_val->data = (char*)ret_val + VB_SZE_ROUND_UP(sizeof(vb_buf_t));
 						else
 							ret_val->data = NULL;
 						ret_val->len = len;

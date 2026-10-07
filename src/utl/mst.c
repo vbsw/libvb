@@ -5,21 +5,17 @@
  *        http://www.boost.org/LICENSE_1_0.txt)
  */
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <assert.h>
-#include <stdalign.h>
+#include <vb/sze.h>
 #include <vb/mst.h>
 
-#define MST_INT_MAX   (sizeof(size_t) >= sizeof(int64_t) ? INT64_MAX : SIZE_MAX)
-
-#define ROUND_UP(a)   ((a + alignof(max_align_t) - 1) & ~(alignof(max_align_t) - 1))
-#define HEAD_T_SIZE   ROUND_UP(sizeof(vb_mst_head_t))
-#define BLOCK_T_SIZE  ROUND_UP(sizeof(vb_mst_block_t))
-#define CHUNK_T_SIZE  ROUND_UP(sizeof(vb_mst_chunk_t))
+#define HEAD_T_SIZE   VB_SZE_ROUND_UP(sizeof(vb_mst_head_t))
+#define BLOCK_T_SIZE  VB_SZE_ROUND_UP(sizeof(vb_mst_block_t))
+#define CHUNK_T_SIZE  VB_SZE_ROUND_UP(sizeof(vb_mst_chunk_t))
 
 #define STRUCTS_INIT_SIZE (HEAD_T_SIZE + BLOCK_T_SIZE + CHUNK_T_SIZE)
-#define MAX_BEFORE_ROUND_UP      (MST_INT_MAX - alignof(max_align_t) + 1)
 
 void *vb_mst_alloc(vb_mst_t *const stack, const int64_t size) {
 	assert(stack);
@@ -28,8 +24,8 @@ void *vb_mst_alloc(vb_mst_t *const stack, const int64_t size) {
 	void *ret_val = NULL;
 	if (VB_ERR_NULL(stack->err)) {
 		if (size > 0) {
-			if (size <= (int64_t)(MAX_BEFORE_ROUND_UP - STRUCTS_INIT_SIZE - CHUNK_T_SIZE)) {
-				const int64_t size_up = ROUND_UP(size);
+			if (VB_SZE_MAX_OK_RS(size, STRUCTS_INIT_SIZE + CHUNK_T_SIZE)) {
+				const int64_t size_up = VB_SZE_ROUND_UP(size);
 				if (size_up <= stack->head->size_total_max - stack->head->size_used) {
 					const int64_t size_up_chunk = size_up + CHUNK_T_SIZE;
 					vb_mst_block_t *block = stack->head->block;
@@ -147,8 +143,8 @@ bool vb_mst_new(vb_mst_t *const stack, const int64_t size_init, const int64_t si
 	if (VB_ERR_NULL(stack->err)) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
 			if (size_init <= size_total_max) {
-				if (size_total_max <= MAX_BEFORE_ROUND_UP) {
-					const int64_t size_init_up = ROUND_UP(size_init);
+				if (VB_SZE_MAX_OK_R(size_total_max)) {
+					const int64_t size_init_up = VB_SZE_ROUND_UP(size_init);
 					vb_mst_head_t *const head = malloc(size_init_up);
 					if (head) {
 						vb_mst_chunk_t *const chunk = (vb_mst_chunk_t*)&((char*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
@@ -164,7 +160,7 @@ bool vb_mst_new(vb_mst_t *const stack, const int64_t size_init, const int64_t si
 						head->size_total = size_init_up;
 						head->size_overhead = STRUCTS_INIT_SIZE;
 						head->size_block_init = size_init_up;
-						head->size_total_max = ROUND_UP(size_total_max);
+						head->size_total_max = VB_SZE_ROUND_UP(size_total_max);
 						stack->head = head;
 						ret_val = true;
 					} else {
@@ -218,8 +214,8 @@ bool vb_mst_new_max(vb_mst_t *const stack, const int64_t size_init) {
 	bool ret_val = false;
 	if (VB_ERR_NULL(stack->err)) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
-			if (size_init <= MAX_BEFORE_ROUND_UP) {
-				const int64_t size_init_up = ROUND_UP(size_init);
+			if (VB_SZE_MAX_OK_R(size_init)) {
+				const int64_t size_init_up = VB_SZE_ROUND_UP(size_init);
 				vb_mst_head_t *const head = malloc(size_init_up);
 				if (head) {
 					vb_mst_chunk_t *const chunk = (vb_mst_chunk_t*)&((char*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
@@ -235,7 +231,7 @@ bool vb_mst_new_max(vb_mst_t *const stack, const int64_t size_init) {
 					head->size_total = size_init_up;
 					head->size_overhead = STRUCTS_INIT_SIZE;
 					head->size_block_init = size_init_up;
-					head->size_total_max = ROUND_UP(MAX_BEFORE_ROUND_UP);
+					head->size_total_max = VB_SZE_MAX_ROUNDED;
 					stack->head = head;
 					ret_val = true;
 				} else {
@@ -256,8 +252,8 @@ bool vb_mst_new_min(vb_mst_t *const stack, const int64_t size_init) {
 	bool ret_val = false;
 	if (VB_ERR_NULL(stack->err)) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
-			if (size_init <= MAX_BEFORE_ROUND_UP) {
-				const int64_t size_init_up = ROUND_UP(size_init);
+			if (VB_SZE_MAX_OK_R(size_init)) {
+				const int64_t size_init_up = VB_SZE_ROUND_UP(size_init);
 				vb_mst_head_t *const head = malloc(size_init_up);
 				if (head) {
 					vb_mst_chunk_t *const chunk = (vb_mst_chunk_t*)&((char*)head)[HEAD_T_SIZE + BLOCK_T_SIZE];
@@ -320,8 +316,8 @@ void *vb_mst_push_size(vb_mst_t *const stack, const int64_t size) {
 	if (VB_ERR_NULL(stack->err)) {
 		vb_mst_block_t *block = stack->head->block;
 		if (size > 0) {
-			if (size <= (int64_t)(MAX_BEFORE_ROUND_UP - CHUNK_T_SIZE*2 - BLOCK_T_SIZE)) {
-				const int64_t size_up_chunk = ROUND_UP(size) + CHUNK_T_SIZE;
+			if (VB_SZE_MAX_OK_RS(size, CHUNK_T_SIZE*2 + BLOCK_T_SIZE)) {
+				const int64_t size_up_chunk = VB_SZE_ROUND_UP(size) + CHUNK_T_SIZE;
 				if (size_up_chunk <= stack->head->size_total_max - stack->head->size_used) {
 					vb_mst_block_t *block_mod = NULL;
 					vb_err_t *err = NULL;
