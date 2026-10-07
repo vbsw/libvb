@@ -23,7 +23,7 @@ void *vb_mhp_alloc(vb_mhp_t *const heap, const int64_t size) {
 	void *ret_val = NULL;
 	if (VB_ERR_NULL(heap->err)) {
 		if (size > 0) {
-			if (VB_SZE_MAX_OK_RS(size, STRUCTS_INIT_SIZE + CHUNK_T_SIZE)) {
+			if (VB_SZE_MAX_OK_RA(size, STRUCTS_INIT_SIZE + CHUNK_T_SIZE)) {
 				const int64_t size_up = VB_SZE_ROUND_UP(size);
 				if (size_up <= heap->head->size_total_max - heap->head->size_used) {
 					const int64_t size_up_chunk = size_up + CHUNK_T_SIZE;

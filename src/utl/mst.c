@@ -24,7 +24,7 @@ void *vb_mst_alloc(vb_mst_t *const stack, const int64_t size) {
 	void *ret_val = NULL;
 	if (VB_ERR_NULL(stack->err)) {
 		if (size > 0) {
-			if (VB_SZE_MAX_OK_RS(size, STRUCTS_INIT_SIZE + CHUNK_T_SIZE)) {
+			if (VB_SZE_MAX_OK_RA(size, STRUCTS_INIT_SIZE + CHUNK_T_SIZE)) {
 				const int64_t size_up = VB_SZE_ROUND_UP(size);
 				if (size_up <= stack->head->size_total_max - stack->head->size_used) {
 					const int64_t size_up_chunk = size_up + CHUNK_T_SIZE;
@@ -316,7 +316,7 @@ void *vb_mst_push_size(vb_mst_t *const stack, const int64_t size) {
 	if (VB_ERR_NULL(stack->err)) {
 		vb_mst_block_t *block = stack->head->block;
 		if (size > 0) {
-			if (VB_SZE_MAX_OK_RS(size, CHUNK_T_SIZE*2 + BLOCK_T_SIZE)) {
+			if (VB_SZE_MAX_OK_RA(size, CHUNK_T_SIZE*2 + BLOCK_T_SIZE)) {
 				const int64_t size_up_chunk = VB_SZE_ROUND_UP(size) + CHUNK_T_SIZE;
 				if (size_up_chunk <= stack->head->size_total_max - stack->head->size_used) {
 					vb_mst_block_t *block_mod = NULL;

@@ -21,7 +21,7 @@ void *vb_mar_alloc(vb_mar_t *const arena, const int64_t size) {
 	void *ret_val = NULL;
 	if (VB_ERR_NULL(arena->err)) {
 		if (size > 0) {
-			if (VB_SZE_MAX_OK_RS(size, STRUCTS_INIT_SIZE)) {
+			if (VB_SZE_MAX_OK_RA(size, STRUCTS_INIT_SIZE)) {
 				const int64_t size_up = VB_SZE_ROUND_UP(size);
 				if (size_up <= arena->head->size_total_max - arena->head->size_used) {
 					vb_mar_block_t *block = arena->head->block;

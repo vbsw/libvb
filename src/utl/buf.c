@@ -17,7 +17,7 @@ static bool buf_init_new(vb_buf_t *const buf, const int64_t len, const int64_t c
 		if (len >= 0) {
 			if (len <= cap) {
 				if (cap != 0) {
-					if (VB_SZE_MAX_OK_S(cap, alignof(max_align_t) - 1 + VB_SZE_ROUND_UP(sizeof(vb_buf_t)))) {
+					if (VB_SZE_MAX_OK_A(cap, alignof(max_align_t) - 1 + VB_SZE_ROUND_UP(sizeof(vb_buf_t)))) {
 						if (mem)
 							buf->data = VB_MEM_ALLOC(mem, cap);
 						else
@@ -55,7 +55,7 @@ static vb_buf_t *buf_new(const int64_t len, const int64_t cap, vb_mem_t *const m
 	if (VB_ERR_NULL(err)) {
 		if (len >= 0) {
 			if (len <= cap) {
-				if (VB_SZE_MAX_OK_S(cap, alignof(max_align_t) - 1 + VB_SZE_ROUND_UP(sizeof(vb_buf_t)))) {
+				if (VB_SZE_MAX_OK_A(cap, alignof(max_align_t) - 1 + VB_SZE_ROUND_UP(sizeof(vb_buf_t)))) {
 					const int64_t size_total = cap + VB_SZE_ROUND_UP(sizeof(vb_buf_t));
 					if (mem)
 						ret_val = VB_MEM_ALLOC(mem, size_total);
