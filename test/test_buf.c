@@ -9,12 +9,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdalign.h>
+#include <string.h>
+#include <vb/sze.h>
 #include <vb/buf.h>
 #include <vb/mst.h>
 
-#define ROUND_UP(a)   ((a + alignof(max_align_t) - 1) & ~(alignof(max_align_t) - 1))
-
-#define CHUNK_T_SIZE  ROUND_UP(sizeof(vb_mst_chunk_t))
+#define CHUNK_T_SIZE  VB_SZE_ROUND_UP(sizeof(vb_mst_chunk_t))
 
 #define ASSERT(a) if (!(a)) { *err_line = __LINE__; return; }
 
@@ -41,7 +41,7 @@ static void test_new_mem(int *const err_line) {
 		vb_mst_new_max(&stack, 1024);
 		vb_mst_push(&stack);
 		vb_mst_mem_init(&stack, &mem);
-		uint8_t *stack_data = (uint8_t*)stack.head->block->top_chunk + CHUNK_T_SIZE + ROUND_UP(sizeof(vb_buf_t));
+		uint8_t *stack_data = (uint8_t*)stack.head->block->top_chunk + CHUNK_T_SIZE + VB_SZE_ROUND_UP(sizeof(vb_buf_t));
 		ASSERT(err == NULL)
 		ASSERT(stack.err == &err)
 		ASSERT(stack.head)
@@ -65,7 +65,7 @@ static void test_new_mem(int *const err_line) {
 			ASSERT(buf1->data[i] == stack_data[i])
 		}
 
-		stack_data = stack_data + ROUND_UP(20) + ROUND_UP(sizeof(vb_buf_t));
+		stack_data = stack_data + VB_SZE_ROUND_UP(20) + VB_SZE_ROUND_UP(sizeof(vb_buf_t));
 		size_used_prev = stack.head->size_used;
 		vb_buf_t *const buf2 = vb_buf_new(30, 40, &mem, &err);
 		ASSERT(err == NULL)

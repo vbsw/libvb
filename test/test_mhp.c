@@ -8,12 +8,12 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdalign.h>
+#include <vb/sze.h>
 #include <vb/mhp.h>
 
-#define ROUND_UP(a)   ((a + alignof(max_align_t) - 1) & ~(alignof(max_align_t) - 1))
-#define HEAD_T_SIZE   ROUND_UP(sizeof(vb_mhp_head_t))       // 48
-#define BLOCK_T_SIZE  ROUND_UP(sizeof(vb_mhp_block_t))      // 32
-#define CHUNK_T_SIZE  ROUND_UP(sizeof(vb_mhp_chunk_t))      // 16
+#define HEAD_T_SIZE   VB_SZE_ROUND_UP(sizeof(vb_mhp_head_t))       // 48
+#define BLOCK_T_SIZE  VB_SZE_ROUND_UP(sizeof(vb_mhp_block_t))      // 32
+#define CHUNK_T_SIZE  VB_SZE_ROUND_UP(sizeof(vb_mhp_chunk_t))      // 16
 
 #define STRUCTS_INIT_SIZE   (HEAD_T_SIZE + BLOCK_T_SIZE + CHUNK_T_SIZE)  // 96
 
@@ -23,7 +23,7 @@ static void test_new_0(int *const err_line) {
 	if (*err_line == 0) {
 		vb_err_t *err = NULL;
 		vb_mhp_t mhp = {.err = &err};
-		const int64_t init_free  = ROUND_UP(sizeof(void*));
+		const int64_t init_free  = VB_SZE_ROUND_UP(sizeof(void*));
 		const int64_t init_total = STRUCTS_INIT_SIZE + init_free;
 
 		// new instance
@@ -55,7 +55,7 @@ static void test_alloc_0(int *const err_line) {
 	if (*err_line == 0) {
 		vb_err_t *err = NULL;
 		vb_mhp_t mhp = {.err = &err};
-		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
+		const size_t init_free  = VB_SZE_ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  // 112
 
 		// new instance (like test_new_0)
@@ -94,7 +94,7 @@ static void test_alloc_1(int *const err_line) {
 	if (*err_line == 0) {
 		vb_err_t *err = NULL;
 		vb_mhp_t mhp = {.err = &err};
-		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
+		const size_t init_free  = VB_SZE_ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  // 112
 
 		// new instance (like test_new_0)
@@ -139,7 +139,7 @@ static void test_alloc_2(int *const err_line) {
 	if (*err_line == 0) {
 		vb_err_t *err = NULL;
 		vb_mhp_t mhp = {.err = &err};
-		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
+		const size_t init_free  = VB_SZE_ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  // 112
 
 		// new instance (like test_new_0)
@@ -185,7 +185,7 @@ static void test_alloc_free_0(int *const err_line) {
 	if (*err_line == 0) {
 		vb_err_t *err = NULL;
 		vb_mhp_t mhp = {.err = &err};
-		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
+		const size_t init_free  = VB_SZE_ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  // 112
 
 		// new instance (like test_new_0)
@@ -231,7 +231,7 @@ static void test_alloc_free_1(int *const err_line) {
 	if (*err_line == 0) {
 		vb_err_t *err = NULL;
 		vb_mhp_t mhp = {.err = &err};
-		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
+		const size_t init_free  = VB_SZE_ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  // 112
 
 		// new instance (like test_new_0)
@@ -288,7 +288,7 @@ static void test_alloc_mem(int *const err_line) {
 		vb_err_t *err = NULL;
 		vb_mem_t mem = {.err = &err};
 		vb_mhp_t mhp = {.err = &err};
-		const size_t init_free  = ROUND_UP(sizeof(void*));        //  16
+		const size_t init_free  = VB_SZE_ROUND_UP(sizeof(void*));        //  16
 		const size_t init_total = STRUCTS_INIT_SIZE + init_free;  // 112
 
 		// new instance (like test_new_0)
