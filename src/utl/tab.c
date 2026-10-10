@@ -306,6 +306,92 @@ void vb_tab_line_no_inl(vb_tab_t *const tab) {
 	vb_tab_key_val_no_inl(tab);
 }
 
+void vb_tab_list_init(vb_tab_list_t *const tab_list, vb_buf_t *const buf, const int64_t list_begin, const int64_t list_end) {
+	assert(tab_list);
+	assert(buf);
+	assert(list_begin >= 0 && list_begin < buf->len);
+	assert(list_begin <= list_end);
+	tab_list->buf = buf;
+	tab_list->list_begin = list_begin;
+	tab_list->list_end = list_end;
+	tab_list->entry_begin = list_begin;
+	tab_list->entry_end = list_begin;
+	tab_list->entry_len = 0;
+	tab_list->entry_idx = -1;
+	tab_list->separator_begin = list_begin - 1;
+}
+
+void vb_tab_list_key_init(vb_tab_list_t *const tab_list, vb_tab_t *const tab) {
+	assert(tab_list);
+	assert(tab);
+	assert(tab->buf);
+	assert(tab->key_begin >= 0 && tab->key_begin < tab->buf->len);
+	assert(tab->key_begin <= tab->key_end);
+	tab_list->buf = tab->buf;
+	tab_list->list_begin = tab->key_begin;
+	tab_list->list_end = tab->key_end;
+	tab_list->entry_begin = tab->key_begin;
+	tab_list->entry_end = tab->key_begin;
+	tab_list->entry_len = 0;
+	tab_list->entry_idx = -1;
+	tab_list->separator_begin = tab->key_begin - 1;
+}
+
+bool vb_tab_list_next(vb_tab_list_t *const tab_list, const uint8_t separator) {
+	assert(tab_list);
+	assert(tab_list->buf);
+	for (int64_t i = tab_list->separator_begin + 1; i < tab_list->list_end; i++) {
+		const uint8_t byte = tab_list->buf->data[i];
+		if (byte == separator && separator != ' ') {
+			tab_list->entry_begin = i, tab_list->entry_end = i, tab_list->separator_begin = i, tab_list->entry_len = 0;
+			tab_list->entry_idx++;
+			return true;
+		} else if (byte > 32) {
+			tab_list->entry_begin = i;
+			tab_list->separator_begin = tab_list->list_end;
+			for (int64_t j = i + 1; j < tab_list->list_end; j++) {
+				if (tab_list->buf->data[j] == separator) {
+					if (separator == ' ') {
+						const int64_t next_entry_begin = skip_whitespace(tab_list->buf->data, j+1, tab_list->list_end);
+						if (next_entry_begin < tab_list->list_end)
+							tab_list->separator_begin = next_entry_begin - 1;
+					} else {
+						tab_list->separator_begin = j;
+					}
+					break;
+				}
+			}
+			tab_list->entry_end = skip_whitespace_reverse(tab_list->buf->data, i+1, tab_list->separator_begin);
+			tab_list->entry_len = tab_list->entry_end - tab_list->entry_begin;
+			tab_list->entry_idx++;
+			return true;
+		}
+	}
+	tab_list->entry_begin = tab_list->list_end, tab_list->entry_end = tab_list->list_end, tab_list->entry_len = 0;
+	if (tab_list->separator_begin < tab_list->list_end) {
+		tab_list->separator_begin = tab_list->list_end;
+		tab_list->entry_idx++;
+		return true;
+	}
+	return false;
+}
+
+void vb_tab_list_val_init(vb_tab_list_t *const tab_list, vb_tab_t *const tab) {
+	assert(tab_list);
+	assert(tab);
+	assert(tab->buf);
+	assert(tab->val_begin >= 0 && tab->val_begin < tab->buf->len);
+	assert(tab->val_begin <= tab->val_end);
+	tab_list->buf = tab->buf;
+	tab_list->list_begin = tab->val_begin;
+	tab_list->list_end = tab->val_end;
+	tab_list->entry_begin = tab->val_begin;
+	tab_list->entry_end = tab->val_begin;
+	tab_list->entry_len = 0;
+	tab_list->entry_idx = -1;
+	tab_list->separator_begin = tab->val_begin - 1;
+}
+
 bool vb_tab_next(vb_tab_t *const tab) {
 	return tab_next(tab, false);
 }
@@ -329,91 +415,5 @@ void vb_tab_val_no_inl(vb_tab_t *const tab) {
 	tab->next_key_begin = tab->line_end + 1;
 	tab->val_len = tab->val_end - tab->val_begin;
 	tab->state = STATE_NEW_LINE;
-}
-
-void vb_tbl_init(vb_tbl_t *const tbl, vb_buf_t *const buf, const int64_t list_begin, const int64_t list_end) {
-	assert(tbl);
-	assert(buf);
-	assert(list_begin >= 0 && list_begin < buf->len);
-	assert(list_begin <= list_end);
-	tbl->buf = buf;
-	tbl->list_begin = list_begin;
-	tbl->list_end = list_end;
-	tbl->entry_begin = list_begin;
-	tbl->entry_end = list_begin;
-	tbl->entry_len = 0;
-	tbl->entry_idx = -1;
-	tbl->separator_begin = list_begin - 1;
-}
-
-void vb_tbl_key_init(vb_tbl_t *const tbl, vb_tab_t *const tab) {
-	assert(tbl);
-	assert(tab);
-	assert(tab->buf);
-	assert(tab->key_begin >= 0 && tab->key_begin < tab->buf->len);
-	assert(tab->key_begin <= tab->key_end);
-	tbl->buf = tab->buf;
-	tbl->list_begin = tab->key_begin;
-	tbl->list_end = tab->key_end;
-	tbl->entry_begin = tab->key_begin;
-	tbl->entry_end = tab->key_begin;
-	tbl->entry_len = 0;
-	tbl->entry_idx = -1;
-	tbl->separator_begin = tab->key_begin - 1;
-}
-
-bool vb_tbl_next(vb_tbl_t *const tbl, const uint8_t separator) {
-	assert(tbl);
-	assert(tbl->buf);
-	for (int64_t i = tbl->separator_begin + 1; i < tbl->list_end; i++) {
-		const uint8_t byte = tbl->buf->data[i];
-		if (byte == separator && separator != ' ') {
-			tbl->entry_begin = i, tbl->entry_end = i, tbl->separator_begin = i, tbl->entry_len = 0;
-			tbl->entry_idx++;
-			return true;
-		} else if (byte > 32) {
-			tbl->entry_begin = i;
-			tbl->separator_begin = tbl->list_end;
-			for (int64_t j = i + 1; j < tbl->list_end; j++) {
-				if (tbl->buf->data[j] == separator) {
-					if (separator == ' ') {
-						const int64_t next_entry_begin = skip_whitespace(tbl->buf->data, j+1, tbl->list_end);
-						if (next_entry_begin < tbl->list_end)
-							tbl->separator_begin = next_entry_begin - 1;
-					} else {
-						tbl->separator_begin = j;
-					}
-					break;
-				}
-			}
-			tbl->entry_end = skip_whitespace_reverse(tbl->buf->data, i+1, tbl->separator_begin);
-			tbl->entry_len = tbl->entry_end - tbl->entry_begin;
-			tbl->entry_idx++;
-			return true;
-		}
-	}
-	tbl->entry_begin = tbl->list_end, tbl->entry_end = tbl->list_end, tbl->entry_len = 0;
-	if (tbl->separator_begin < tbl->list_end) {
-		tbl->separator_begin = tbl->list_end;
-		tbl->entry_idx++;
-		return true;
-	}
-	return false;
-}
-
-void vb_tbl_val_init(vb_tbl_t *const tbl, vb_tab_t *const tab) {
-	assert(tbl);
-	assert(tab);
-	assert(tab->buf);
-	assert(tab->val_begin >= 0 && tab->val_begin < tab->buf->len);
-	assert(tab->val_begin <= tab->val_end);
-	tbl->buf = tab->buf;
-	tbl->list_begin = tab->val_begin;
-	tbl->list_end = tab->val_end;
-	tbl->entry_begin = tab->val_begin;
-	tbl->entry_end = tab->val_begin;
-	tbl->entry_len = 0;
-	tbl->entry_idx = -1;
-	tbl->separator_begin = tab->val_begin - 1;
 }
 

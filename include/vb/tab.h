@@ -33,7 +33,7 @@ typedef struct {
 	int64_t entry_begin, entry_end;
 	int64_t entry_len, entry_idx;
 	int64_t separator_begin;
-} vb_tbl_t;
+} vb_tab_list_t;
 
 void    vb_tab_init           (vb_tab_t *tab, vb_buf_t *buf, vb_err_t **err);
 void    vb_tab_key_no_inl     (vb_tab_t *tab);
@@ -45,10 +45,10 @@ int64_t vb_tab_reset          (vb_tab_t *tab);
 int64_t vb_tab_rest           (vb_tab_t *tab);
 void    vb_tab_val_no_inl     (vb_tab_t *tab);
 
-void    vb_tbl_init     (vb_tbl_t *tbl, vb_buf_t *buf, int64_t list_begin, int64_t list_end);
-void    vb_tbl_key_init (vb_tbl_t *tbl, vb_tab_t *tab);
-bool    vb_tbl_next     (vb_tbl_t *tbl, uint8_t separator);
-void    vb_tbl_val_init (vb_tbl_t *tbl, vb_tab_t *tab);
+void    vb_tab_list_init     (vb_tab_list_t *tab_list, vb_buf_t *buf, int64_t list_begin, int64_t list_end);
+void    vb_tab_list_key_init (vb_tab_list_t *tab_list, vb_tab_t *tab);
+bool    vb_tab_list_next     (vb_tab_list_t *tab_list, uint8_t separator);
+void    vb_tab_list_val_init (vb_tab_list_t *tab_list, vb_tab_t *tab);
 
 #ifdef __cplusplus
 }

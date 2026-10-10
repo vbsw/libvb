@@ -445,39 +445,39 @@ static void test_list1(int *const err_line) {
 	if (*err_line == 0) {
 		vb_err_t *err = NULL;
 		vb_buf_t buf;
-		vb_tbl_t tbl;
+		vb_tab_list_t tab_list;
 		const uint8_t *const line = "one two   three  ";
 		const int64_t line_len = (int64_t)strlen(line);
 
 		vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
-		vb_tbl_init(&tbl, &buf, 0, line_len);
-		ASSERT(tbl.list_begin == 0)
-		ASSERT(tbl.list_end == line_len)
+		vb_tab_list_init(&tab_list, &buf, 0, line_len);
+		ASSERT(tab_list.list_begin == 0)
+		ASSERT(tab_list.list_end == line_len)
 
-		ASSERT(vb_tbl_next(&tbl, ' '))
-		ASSERT(tbl.entry_begin == 0)
-		ASSERT(tbl.entry_end == 3)
-		ASSERT(tbl.entry_len == 3)
-		ASSERT(tbl.entry_idx == 0)
-		ASSERT(tbl.separator_begin > 0)
+		ASSERT(vb_tab_list_next(&tab_list, ' '))
+		ASSERT(tab_list.entry_begin == 0)
+		ASSERT(tab_list.entry_end == 3)
+		ASSERT(tab_list.entry_len == 3)
+		ASSERT(tab_list.entry_idx == 0)
+		ASSERT(tab_list.separator_begin > 0)
 
-		ASSERT(vb_tbl_next(&tbl, ' '))
-		ASSERT(tbl.entry_begin == 4)
-		ASSERT(tbl.entry_end == 7)
-		ASSERT(tbl.entry_len == 3)
-		ASSERT(tbl.entry_idx == 1)
-		ASSERT(tbl.separator_begin > 0)
+		ASSERT(vb_tab_list_next(&tab_list, ' '))
+		ASSERT(tab_list.entry_begin == 4)
+		ASSERT(tab_list.entry_end == 7)
+		ASSERT(tab_list.entry_len == 3)
+		ASSERT(tab_list.entry_idx == 1)
+		ASSERT(tab_list.separator_begin > 0)
 
-		ASSERT(vb_tbl_next(&tbl, ' '))
-		ASSERT(tbl.entry_begin == 10)
-		ASSERT(tbl.entry_end == 15)
-		ASSERT(tbl.entry_len == 5)
-		ASSERT(tbl.entry_idx == 2)
-		ASSERT(tbl.separator_begin > 0)
+		ASSERT(vb_tab_list_next(&tab_list, ' '))
+		ASSERT(tab_list.entry_begin == 10)
+		ASSERT(tab_list.entry_end == 15)
+		ASSERT(tab_list.entry_len == 5)
+		ASSERT(tab_list.entry_idx == 2)
+		ASSERT(tab_list.separator_begin > 0)
 
-		ASSERT(vb_tbl_next(&tbl, ' ') == false)
-		ASSERT(tbl.entry_len == 0)
-		ASSERT(tbl.entry_idx == 2)
+		ASSERT(vb_tab_list_next(&tab_list, ' ') == false)
+		ASSERT(tab_list.entry_len == 0)
+		ASSERT(tab_list.entry_idx == 2)
 	}
 }
 
@@ -485,51 +485,51 @@ static void test_list2(int *const err_line) {
 	if (*err_line == 0) {
 		vb_err_t *err = NULL;
 		vb_buf_t buf;
-		vb_tbl_t tbl;
+		vb_tab_list_t tab_list;
 		const uint8_t *const line = ",one, two  , three  , ";
 		const int64_t line_len = (int64_t)strlen(line);
 
 		vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
-		vb_tbl_init(&tbl, &buf, 0, line_len);
+		vb_tab_list_init(&tab_list, &buf, 0, line_len);
 
-		ASSERT(vb_tbl_next(&tbl, ','))     // <empty>
-		ASSERT(tbl.entry_begin == 0)
-		ASSERT(tbl.entry_end == 0)
-		ASSERT(tbl.entry_len == 0)
-		ASSERT(tbl.entry_idx == 0)
-		ASSERT(tbl.separator_begin == 0)
+		ASSERT(vb_tab_list_next(&tab_list, ','))     // <empty>
+		ASSERT(tab_list.entry_begin == 0)
+		ASSERT(tab_list.entry_end == 0)
+		ASSERT(tab_list.entry_len == 0)
+		ASSERT(tab_list.entry_idx == 0)
+		ASSERT(tab_list.separator_begin == 0)
 
-		ASSERT(vb_tbl_next(&tbl, ','))     // one
-		ASSERT(tbl.entry_begin == 1)
-		ASSERT(tbl.entry_end == 4)
-		ASSERT(tbl.entry_len == 3)
-		ASSERT(tbl.entry_idx == 1)
-		ASSERT(tbl.separator_begin == 4)
+		ASSERT(vb_tab_list_next(&tab_list, ','))     // one
+		ASSERT(tab_list.entry_begin == 1)
+		ASSERT(tab_list.entry_end == 4)
+		ASSERT(tab_list.entry_len == 3)
+		ASSERT(tab_list.entry_idx == 1)
+		ASSERT(tab_list.separator_begin == 4)
 
-		ASSERT(vb_tbl_next(&tbl, ','))     // two
-		ASSERT(tbl.entry_begin == 6)
-		ASSERT(tbl.entry_end == 9)
-		ASSERT(tbl.entry_len == 3)
-		ASSERT(tbl.entry_idx == 2)
-		ASSERT(tbl.separator_begin == 11)
+		ASSERT(vb_tab_list_next(&tab_list, ','))     // two
+		ASSERT(tab_list.entry_begin == 6)
+		ASSERT(tab_list.entry_end == 9)
+		ASSERT(tab_list.entry_len == 3)
+		ASSERT(tab_list.entry_idx == 2)
+		ASSERT(tab_list.separator_begin == 11)
 
-		ASSERT(vb_tbl_next(&tbl, ','))     // three
-		ASSERT(tbl.entry_begin == 13)
-		ASSERT(tbl.entry_end == 18)
-		ASSERT(tbl.entry_len == 5)
-		ASSERT(tbl.entry_idx == 3)
-		ASSERT(tbl.separator_begin == 20)
+		ASSERT(vb_tab_list_next(&tab_list, ','))     // three
+		ASSERT(tab_list.entry_begin == 13)
+		ASSERT(tab_list.entry_end == 18)
+		ASSERT(tab_list.entry_len == 5)
+		ASSERT(tab_list.entry_idx == 3)
+		ASSERT(tab_list.separator_begin == 20)
 
-		ASSERT(vb_tbl_next(&tbl, ','))     // <empty>
-		ASSERT(tbl.entry_begin == line_len)
-		ASSERT(tbl.entry_end == line_len)
-		ASSERT(tbl.entry_len == 0)
-		ASSERT(tbl.entry_idx == 4)
-		ASSERT(tbl.separator_begin == line_len)
+		ASSERT(vb_tab_list_next(&tab_list, ','))     // <empty>
+		ASSERT(tab_list.entry_begin == line_len)
+		ASSERT(tab_list.entry_end == line_len)
+		ASSERT(tab_list.entry_len == 0)
+		ASSERT(tab_list.entry_idx == 4)
+		ASSERT(tab_list.separator_begin == line_len)
 
-		ASSERT(vb_tbl_next(&tbl, ',') == false)
-		ASSERT(tbl.entry_len == 0)
-		ASSERT(tbl.entry_idx == 4)
+		ASSERT(vb_tab_list_next(&tab_list, ',') == false)
+		ASSERT(tab_list.entry_len == 0)
+		ASSERT(tab_list.entry_idx == 4)
 	}
 }
 
@@ -537,44 +537,44 @@ static void test_list3(int *const err_line) {
 	if (*err_line == 0) {
 		vb_err_t *err = NULL;
 		vb_buf_t buf;
-		vb_tbl_t tbl;
+		vb_tab_list_t tab_list;
 		const uint8_t *const line = ",,,  ";
 		const int64_t line_len = (int64_t)strlen(line);
 
 		vb_buf_init(&buf, (uint8_t*)line, line_len, line_len);
-		vb_tbl_init(&tbl, &buf, 0, line_len);
+		vb_tab_list_init(&tab_list, &buf, 0, line_len);
 
-		ASSERT(vb_tbl_next(&tbl, ','))
-		ASSERT(tbl.entry_begin == 0)
-		ASSERT(tbl.entry_end == 0)
-		ASSERT(tbl.entry_len == 0)
-		ASSERT(tbl.entry_idx == 0)
-		ASSERT(tbl.separator_begin == 0)
+		ASSERT(vb_tab_list_next(&tab_list, ','))
+		ASSERT(tab_list.entry_begin == 0)
+		ASSERT(tab_list.entry_end == 0)
+		ASSERT(tab_list.entry_len == 0)
+		ASSERT(tab_list.entry_idx == 0)
+		ASSERT(tab_list.separator_begin == 0)
 
-		ASSERT(vb_tbl_next(&tbl, ','))
-		ASSERT(tbl.entry_begin == 1)
-		ASSERT(tbl.entry_end == 1)
-		ASSERT(tbl.entry_len == 0)
-		ASSERT(tbl.entry_idx == 1)
-		ASSERT(tbl.separator_begin == 1)
+		ASSERT(vb_tab_list_next(&tab_list, ','))
+		ASSERT(tab_list.entry_begin == 1)
+		ASSERT(tab_list.entry_end == 1)
+		ASSERT(tab_list.entry_len == 0)
+		ASSERT(tab_list.entry_idx == 1)
+		ASSERT(tab_list.separator_begin == 1)
 
-		ASSERT(vb_tbl_next(&tbl, ','))
-		ASSERT(tbl.entry_begin == 2)
-		ASSERT(tbl.entry_end == 2)
-		ASSERT(tbl.entry_len == 0)
-		ASSERT(tbl.entry_idx == 2)
-		ASSERT(tbl.separator_begin == 2)
+		ASSERT(vb_tab_list_next(&tab_list, ','))
+		ASSERT(tab_list.entry_begin == 2)
+		ASSERT(tab_list.entry_end == 2)
+		ASSERT(tab_list.entry_len == 0)
+		ASSERT(tab_list.entry_idx == 2)
+		ASSERT(tab_list.separator_begin == 2)
 
-		ASSERT(vb_tbl_next(&tbl, ','))
-		ASSERT(tbl.entry_begin == line_len)
-		ASSERT(tbl.entry_end == line_len)
-		ASSERT(tbl.entry_len == 0)
-		ASSERT(tbl.entry_idx == 3)
-		ASSERT(tbl.separator_begin == line_len)
+		ASSERT(vb_tab_list_next(&tab_list, ','))
+		ASSERT(tab_list.entry_begin == line_len)
+		ASSERT(tab_list.entry_end == line_len)
+		ASSERT(tab_list.entry_len == 0)
+		ASSERT(tab_list.entry_idx == 3)
+		ASSERT(tab_list.separator_begin == line_len)
 
-		ASSERT(vb_tbl_next(&tbl, ' ') == false)
-		ASSERT(tbl.entry_len == 0)
-		ASSERT(tbl.entry_idx == 3)
+		ASSERT(vb_tab_list_next(&tab_list, ' ') == false)
+		ASSERT(tab_list.entry_len == 0)
+		ASSERT(tab_list.entry_idx == 3)
 	}
 }
 
