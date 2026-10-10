@@ -10,12 +10,12 @@
 #include <vb/sze.h>
 #include <vb/buf.h>
 
-static bool buf_init_new(vb_buf_t *const buf, const int64_t len, const int64_t cap, vb_mem_t *const mem, vb_err_t **const err, const int64_t num2a, const int64_t num2b, const int64_t num2c, const int64_t num2d) {
+static bool buf_init_new(vb_buf_t *const buf, const int64_t size, const int64_t cap, vb_mem_t *const mem, vb_err_t **const err, const int64_t num2a, const int64_t num2b, const int64_t num2c, const int64_t num2d) {
 	assert(buf);
 	bool ret_val = false;
 	if (VB_ERR_NULL(err)) {
-		if (len >= 0) {
-			if (len <= cap) {
+		if (size >= 0) {
+			if (size <= cap) {
 				if (cap != 0) {
 					if (VB_SZE_MAX_OK_A(cap, alignof(max_align_t) - 1 + VB_SZE_ROUND_UP(sizeof(vb_buf_t)))) {
 						if (mem)
@@ -23,11 +23,11 @@ static bool buf_init_new(vb_buf_t *const buf, const int64_t len, const int64_t c
 						else
 							buf->data = malloc(cap);
 						if (buf->data) {
-							buf->len = len;
+							buf->size = size;
 							buf->cap = cap;
 							ret_val = true;
 						} else {
-							buf->len = 0;
+							buf->size = 0;
 							buf->cap = 0;
 							vb_err_new_oom(err, VB_ERR_BUF_OOM, num2a, NULL, VB_ERR_FFL);
 						}
@@ -36,25 +36,25 @@ static bool buf_init_new(vb_buf_t *const buf, const int64_t len, const int64_t c
 					}
 				} else {
 					buf->data = NULL;
-					buf->len = 0;
+					buf->size = 0;
 					buf->cap = 0;
 					ret_val = true;
 				}
 			} else {
-				vb_err_new(err, VB_ERR_BUF_LIMIT_EXCEEDED, num2c, "length exceeds capacity", NULL, VB_ERR_FFL);
+				vb_err_new(err, VB_ERR_BUF_LIMIT_EXCEEDED, num2c, "size exceeds capacity", NULL, VB_ERR_FFL);
 			}
 		} else {
-			vb_err_new(err, VB_ERR_BUF_UNDERFLOW, num2d, "length underflow", NULL, VB_ERR_FFL);
+			vb_err_new(err, VB_ERR_BUF_UNDERFLOW, num2d, "size underflow", NULL, VB_ERR_FFL);
 		}
 	}
 	return ret_val;
 }
 
-static vb_buf_t *buf_new(const int64_t len, const int64_t cap, vb_mem_t *const mem, vb_err_t **const err, const int64_t num2a, const int64_t num2b, const int64_t num2c, const int64_t num2d) {
+static vb_buf_t *buf_new(const int64_t size, const int64_t cap, vb_mem_t *const mem, vb_err_t **const err, const int64_t num2a, const int64_t num2b, const int64_t num2c, const int64_t num2d) {
 	vb_buf_t *ret_val = NULL;
 	if (VB_ERR_NULL(err)) {
-		if (len >= 0) {
-			if (len <= cap) {
+		if (size >= 0) {
+			if (size <= cap) {
 				if (VB_SZE_MAX_OK_A(cap, alignof(max_align_t) - 1 + VB_SZE_ROUND_UP(sizeof(vb_buf_t)))) {
 					const int64_t size_total = cap + VB_SZE_ROUND_UP(sizeof(vb_buf_t));
 					if (mem)
@@ -66,7 +66,7 @@ static vb_buf_t *buf_new(const int64_t len, const int64_t cap, vb_mem_t *const m
 							ret_val->data = (uint8_t*)ret_val + VB_SZE_ROUND_UP(sizeof(vb_buf_t));
 						else
 							ret_val->data = NULL;
-						ret_val->len = len;
+						ret_val->size = size;
 						ret_val->cap = cap;
 					} else {
 						if (mem) {
@@ -86,40 +86,40 @@ static vb_buf_t *buf_new(const int64_t len, const int64_t cap, vb_mem_t *const m
 					vb_err_new(err, VB_ERR_BUF_OVERFLOW, num2b, "capacity overflow", NULL, VB_ERR_FFL);
 				}
 			} else {
-				vb_err_new(err, VB_ERR_BUF_LIMIT_EXCEEDED, num2c, "length exceeds capacity", NULL, VB_ERR_FFL);
+				vb_err_new(err, VB_ERR_BUF_LIMIT_EXCEEDED, num2c, "size exceeds capacity", NULL, VB_ERR_FFL);
 			}
 		} else {
-			vb_err_new(err, VB_ERR_BUF_UNDERFLOW, num2d, "length underflow", NULL, VB_ERR_FFL);
+			vb_err_new(err, VB_ERR_BUF_UNDERFLOW, num2d, "size underflow", NULL, VB_ERR_FFL);
 		}
 	}
 	return ret_val;
 }
 
-void vb_buf_init(vb_buf_t *const buf, uint8_t *const data, const int64_t len, const int64_t cap) {
+void vb_buf_init(vb_buf_t *const buf, uint8_t *const data, const int64_t size, const int64_t cap) {
 	assert(buf);
-	buf->data = data, buf->len = len, buf->cap = cap;
+	buf->data = data, buf->size = size, buf->cap = cap;
 }
 
-bool vb_buf_init_new(vb_buf_t *const buf, const int64_t len, const int64_t cap, vb_mem_t *const mem, vb_err_t **const err) {
-	return buf_init_new(buf, len, cap, mem, err, 4, 4, 4, 4);
+bool vb_buf_init_new(vb_buf_t *const buf, const int64_t size, const int64_t cap, vb_mem_t *const mem, vb_err_t **const err) {
+	return buf_init_new(buf, size, cap, mem, err, 4, 4, 4, 4);
 }
 
 bool vb_buf_init_new_cap(vb_buf_t *const buf, const int64_t cap, vb_mem_t *const mem, vb_err_t **const err) {
 	return buf_init_new(buf, 0, cap, mem, err, 6, 6, 6, 6);
 }
 
-bool vb_buf_init_new_len(vb_buf_t *const buf, const int64_t len, vb_mem_t *const mem, vb_err_t **const err) {
-	return buf_init_new(buf, len, len, mem, err, 5, 5, 5, 5);
+bool vb_buf_init_new_size(vb_buf_t *const buf, const int64_t size, vb_mem_t *const mem, vb_err_t **const err) {
+	return buf_init_new(buf, size, size, mem, err, 5, 5, 5, 5);
 }
 
-vb_buf_t *vb_buf_new(const int64_t len, const int64_t cap, vb_mem_t *const mem, vb_err_t **const err) {
-	return buf_new(len, cap, mem, err, 1, 1, 1, 1);
+vb_buf_t *vb_buf_new(const int64_t size, const int64_t cap, vb_mem_t *const mem, vb_err_t **const err) {
+	return buf_new(size, cap, mem, err, 1, 1, 1, 1);
 }
 
 vb_buf_t *vb_buf_new_cap(const int64_t cap, vb_mem_t *const mem, vb_err_t **const err) {
 	return buf_new(0, cap, mem, err, 3, 3, 3, 3);
 }
 
-vb_buf_t *vb_buf_new_len(const int64_t len, vb_mem_t *const mem, vb_err_t **const err) {
-	return buf_new(len, len, mem, err, 2, 2, 2, 2);
+vb_buf_t *vb_buf_new_size(const int64_t size, vb_mem_t *const mem, vb_err_t **const err) {
+	return buf_new(size, size, mem, err, 2, 2, 2, 2);
 }

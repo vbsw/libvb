@@ -18,7 +18,7 @@
 
 bool vb_fle_alloc_path_buffer(vb_fle_t *const file, vb_mem_t *const mem) {
 	assert(file);
-	file->buf = vb_buf_new_len(PATH_MAX, mem, file->err);
+	file->buf = vb_buf_new_size(PATH_MAX, mem, file->err);
 	return (file->buf != NULL);
 }
 
@@ -27,7 +27,7 @@ bool vb_fle_dir_name(vb_fle_t *const file) {
 	bool ret_val = false;
 	if (VB_ERR_NULL(file->err)) {
 		assert(file->buf);
-		assert(file->buf->len > 0);
+		assert(file->buf->size > 0);
 		// TODO
 	}
 	return ret_val;
@@ -38,7 +38,7 @@ bool vb_fle_base_name(vb_fle_t *const file) {
 	bool ret_val = false;
 	if (VB_ERR_NULL(file->err)) {
 		assert(file->buf);
-		assert(file->buf->len > 0);
+		assert(file->buf->size > 0);
 		// TODO
 	}
 	return ret_val;
@@ -49,13 +49,13 @@ bool vb_fle_exe_path(vb_fle_t *const file) {
 	bool ret_val = false;
 	if (VB_ERR_NULL(file->err)) {
 		if (file->buf) {
-			if (file->buf->len > 1) {
-				const size_t buf_len = (size_t)file->buf->len;
-				if ((int64_t)buf_len == file->buf->len) {
-					const ssize_t path_len = readlink("/proc/self/exe", file->buf->data, buf_len);
-					if (path_len >= 0 && path_len < buf_len) {
-						file->buf->data[path_len] = '\0';
-						file->buf->len = (int64_t)path_len;
+			if (file->buf->size > 1) {
+				const size_t buf_size = (size_t)file->buf->size;
+				if ((int64_t)buf_size == file->buf->size) {
+					const ssize_t path_size = readlink("/proc/self/exe", file->buf->data, buf_size);
+					if (path_size >= 0 && path_size < buf_size) {
+						file->buf->data[path_size] = '\0';
+						file->buf->size = (int64_t)path_size;
 						ret_val = true;
 					} else {
 						vb_err_new(file->err, VB_ERR_FLE_CANT_DETERMINE_PATH, 0, "can't determine path of executable", NULL, VB_ERR_FFL);
@@ -142,21 +142,21 @@ bool vb_fle_set_base_name(vb_fle_t *const file, const uint8_t *const base_name) 
 	if (VB_ERR_NULL(file->err)) {
 		assert(base_name);
 		if (file->buf) {
-			if (file->buf->len > 1) {
-				size_t base_name_len = strlen(base_name);
-				int64_t base_len = (int64_t)base_name_len;
-				if ((size_t)base_len == base_name_len) {
+			if (file->buf->size > 1) {
+				size_t base_name_size = strlen(base_name);
+				int64_t base_size = (int64_t)base_name_size;
+				if ((size_t)base_size == base_name_size) {
 					vb_buf_t *const buf = file->buf;
-					int64_t buf_len_m1 = buf->len - 1;
-					for (int64_t i = buf_len_m1; i >= 0; i--) {
+					int64_t buf_size_m1 = buf->size - 1;
+					for (int64_t i = buf_size_m1; i >= 0; i--) {
 						if (buf->data[i] == '/') {
-							int64_t diff = base_len - (buf_len_m1 - i);
-							if (diff <= buf->cap - buf_len_m1) {
-								buf->len += diff;
-								if (base_name_len > 0)
-									memcpy((void*)&buf->data[i+1], (void*)base_name, base_name_len+1); // copy zero, too
+							int64_t diff = base_size - (buf_size_m1 - i);
+							if (diff <= buf->cap - buf_size_m1) {
+								buf->size += diff;
+								if (base_name_size > 0)
+									memcpy((void*)&buf->data[i+1], (void*)base_name, base_name_size+1); // copy zero, too
 								else
-									buf->data[buf->len+1] = '\0';
+									buf->data[buf->size+1] = '\0';
 							}
 							ret_val = true;
 							break;

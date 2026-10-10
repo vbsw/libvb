@@ -32,7 +32,7 @@ void test_fle(int *const err_line) {
 	ASSERT(vb_fle_alloc_path_buffer(&exe_path, NULL))
 	ASSERT(err == NULL)
 	ASSERT(exe_path.buf->data)
-	ASSERT(exe_path.buf->len > 0)
+	ASSERT(exe_path.buf->size > 0)
 	ASSERT(exe_path.buf->cap > 0)
 	ASSERT(vb_fle_exe_path(&exe_path))
 	ASSERT(err == NULL)

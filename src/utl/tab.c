@@ -106,7 +106,7 @@ static void parse_key_value(vb_tab_t *const tab) {
 }
 
 static bool parse_line_bounds(vb_tab_t *const tab) {
-	const int64_t bytes_len = tab->buf->len;
+	const int64_t bytes_len = tab->buf->size;
 	for (int64_t i = tab->next_line_begin; i < bytes_len; i++) {
 		const uint8_t byte = tab->buf->data[i];
 		if (byte == '\r') {
@@ -309,7 +309,7 @@ void vb_tab_line_no_inl(vb_tab_t *const tab) {
 void vb_tab_list_init(vb_tab_list_t *const tab_list, vb_buf_t *const buf, const int64_t list_begin, const int64_t list_end) {
 	assert(tab_list);
 	assert(buf);
-	assert(list_begin >= 0 && list_begin < buf->len);
+	assert(list_begin >= 0 && list_begin < buf->size);
 	assert(list_begin <= list_end);
 	tab_list->buf = buf;
 	tab_list->list_begin = list_begin;
@@ -325,7 +325,7 @@ void vb_tab_list_key_init(vb_tab_list_t *const tab_list, vb_tab_t *const tab) {
 	assert(tab_list);
 	assert(tab);
 	assert(tab->buf);
-	assert(tab->key_begin >= 0 && tab->key_begin < tab->buf->len);
+	assert(tab->key_begin >= 0 && tab->key_begin < tab->buf->size);
 	assert(tab->key_begin <= tab->key_end);
 	tab_list->buf = tab->buf;
 	tab_list->list_begin = tab->key_begin;
@@ -380,7 +380,7 @@ void vb_tab_list_val_init(vb_tab_list_t *const tab_list, vb_tab_t *const tab) {
 	assert(tab_list);
 	assert(tab);
 	assert(tab->buf);
-	assert(tab->val_begin >= 0 && tab->val_begin < tab->buf->len);
+	assert(tab->val_begin >= 0 && tab->val_begin < tab->buf->size);
 	assert(tab->val_begin <= tab->val_end);
 	tab_list->buf = tab->buf;
 	tab_list->list_begin = tab->val_begin;
@@ -401,13 +401,13 @@ bool vb_tab_next_no_inl(vb_tab_t *const tab) {
 }
 
 int64_t vb_tab_reset(vb_tab_t *const tab) {
-	const int64_t rest = tab->buf->len - tab->next_line_begin;
+	const int64_t rest = tab->buf->size - tab->next_line_begin;
 	*tab = (vb_tab_t){.err = tab->err, .buf = tab->buf, .line_num = tab->line_num};
 	return rest;
 }
 
 int64_t vb_tab_rest(vb_tab_t *const tab) {
-	return tab->buf->len - tab->next_line_begin;
+	return tab->buf->size - tab->next_line_begin;
 }
 
 void vb_tab_val_no_inl(vb_tab_t *const tab) {

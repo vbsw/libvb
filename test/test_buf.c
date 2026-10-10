@@ -26,7 +26,7 @@ static void test_new(int *const err_line) {
 		ASSERT(err == NULL)
 		ASSERT(buf);
 		ASSERT(buf->data);
-		ASSERT(buf->len == 10);
+		ASSERT(buf->size == 10);
 		ASSERT(buf->cap == 20);
 		free(buf);
 	}
@@ -57,7 +57,7 @@ static void test_new_mem(int *const err_line) {
 		ASSERT(err == NULL)
 		ASSERT(buf1)
 		ASSERT(buf1->data)
-		ASSERT(buf1->len == 10)
+		ASSERT(buf1->size == 10)
 		ASSERT(buf1->cap == 20)
 		ASSERT(size_used_prev != stack.head->size_used)
 		for (int i = 0; i < 5; i++) {
@@ -71,7 +71,7 @@ static void test_new_mem(int *const err_line) {
 		ASSERT(err == NULL)
 		ASSERT(buf2)
 		ASSERT(buf2->data)
-		ASSERT(buf2->len == 30)
+		ASSERT(buf2->size == 30)
 		ASSERT(buf2->cap == 40)
 		ASSERT(buf1 < buf2)
 		ASSERT(size_used_prev != stack.head->size_used)
@@ -114,21 +114,21 @@ static void test_init_new(int *const err_line) {
 		ASSERT(vb_buf_init_new(&buf, 10, 20, NULL, &err));
 		ASSERT(err == NULL)
 		ASSERT(buf.data);
-		ASSERT(buf.len == 10);
+		ASSERT(buf.size == 10);
 		ASSERT(buf.cap == 20);
 		free(buf.data);
 
 		ASSERT(vb_buf_init_new(&buf, 0, 20, NULL, &err));
 		ASSERT(err == NULL)
 		ASSERT(buf.data);
-		ASSERT(buf.len == 0);
+		ASSERT(buf.size == 0);
 		ASSERT(buf.cap == 20);
 		free(buf.data);
 
 		ASSERT(vb_buf_init_new_cap(&buf, 20, NULL, &err));
 		ASSERT(err == NULL)
 		ASSERT(buf.data);
-		ASSERT(buf.len == 0);
+		ASSERT(buf.size == 0);
 		ASSERT(buf.cap == 20);
 		free(buf.data);
 	}
