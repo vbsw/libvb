@@ -9,7 +9,7 @@
 #define VBSW_VB_TAB_H
 
 #include <stdbool.h>
-#include <vb/buf.h>
+#include "buf.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <vb/err.h>
+#include "err.h"
 
 #ifdef __cplusplus
 extern "C" {

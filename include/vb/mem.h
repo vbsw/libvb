@@ -8,7 +8,7 @@
 #ifndef VBSW_VB_MEM_H
 #define VBSW_VB_MEM_H
 
-#include <vb/err.h>
+#include "err.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -9,7 +9,7 @@
 #define VBSW_VB_BUF_H
 
 #include <stdbool.h>
-#include <vb/mem.h>
+#include "mem.h"
 
 #ifdef __cplusplus
 extern "C" {
