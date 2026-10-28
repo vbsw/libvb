@@ -385,10 +385,10 @@ void *vb_mst_push_size(vb_mst_t *const stack, const int64_t size) {
 								block_rev->top_chunk->counter--;
 								block_rev = block_rev->next_block;
 							} while (block_rev);
-							vb_err_asgf(stack->err, err);
+							vb_err_apdf(stack->err, err);
 						}
 					} else {
-						vb_err_asgf(stack->err, err);
+						vb_err_apdf(stack->err, err);
 					}
 				} else {
 					vb_err_new_oom(stack->err, VB_ERR_MST_OOM, 8, NULL, VB_ERR_FFL);

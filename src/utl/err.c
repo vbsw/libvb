@@ -14,11 +14,21 @@
 
 static vb_err_t oom_err = { NULL, "out of memory (1)", "err.c", "vb_err_new", VB_ERR_OUT_OF_MEMORY, VB_ERR_NONE, 0, 5, 10 };
 
-vb_err_t *vb_err_asgf (vb_err_t **const err, vb_err_t *const other_err) {
-	return err ? *err = other_err : vb_err_free(other_err);
+vb_err_t *vb_err_apdf(vb_err_t **err, vb_err_t *const other_err) {
+	if (err) {
+		if (other_err) {
+			while ((*err)->next_err)
+				err = (*err)->next_err;
+			(*err)->next_err = other_err;
+			return other_err;
+		}
+	} else if (other_err) {
+		vb_err_free(other_err);
+	}
+	return NULL;
 }
 
-vb_err_t *vb_err_new(vb_err_t **const err, const int64_t num1, const int64_t num2, const char *const str1, const char *const str2, const char *const file_path, const char *const func_name, const size_t line, const size_t len1, const size_t len2) {
+vb_err_t *vb_err_new(vb_err_t **const err, const int64_t num1, const int64_t num2, const uint8_t *const str1, const uint8_t *const str2, const uint8_t *const file_path, const uint8_t *const func_name, const size_t line, const size_t len1, const size_t len2) {
 	assert(num1);
 	assert(file_path);
 	assert(func_name);
@@ -28,7 +38,7 @@ vb_err_t *vb_err_new(vb_err_t **const err, const int64_t num1, const int64_t num
 	if (err) {
 		vb_err_t *ret_val = NULL;
 		int64_t n1 = num1 > 0 ? num1 : -num1, n2 = num2 > 0 ? num2 : -num2, file_name_off = (int64_t)(len1-2);
-		char n1str[22], n2str[22];
+		uint8_t n1str[22], n2str[22];
 		size_t n1len = 0, n2len = 0;
 		const size_t str1len = (str1 ? strlen(str1) : 0);
 		const size_t str2len = (str2 ? strlen(str2) : 0);
@@ -84,7 +94,7 @@ vb_err_t *vb_err_new(vb_err_t **const err, const int64_t num1, const int64_t num
 		if (ret_val == NULL) {
 			ret_val = malloc(err_size);
 			if (ret_val) {
-				char *const data = (char*)(&ret_val[1]);
+				uint8_t *const data = (uint8_t*)(&ret_val[1]);
 				size_t offset = 0;
 				if (str1len) {
 					memcpy(data, str1, str1len);
@@ -136,7 +146,7 @@ vb_err_t *vb_err_new(vb_err_t **const err, const int64_t num1, const int64_t num
 	return NULL;
 }
 
-vb_err_t *vb_err_new_oom(vb_err_t **const err, const int64_t num1, const int64_t num2, const char *const str2, const char *const file_path, const char *const func_name, const size_t line, const size_t len1, const size_t len2) {
+vb_err_t *vb_err_new_oom(vb_err_t **const err, const int64_t num1, const int64_t num2, const uint8_t *const str2, const uint8_t *const file_path, const uint8_t *const func_name, const size_t line, const size_t len1, const size_t len2) {
 	return vb_err_new(err, num1, num2, "out of memory", str2, file_path, func_name, line, len1, len2);
 }
 
