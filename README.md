@@ -24,10 +24,6 @@ To compile tests go into project directory and checkout the "development" branch
 
 	git switch development
 
-Then compile tests with
+Then compile and run tests
 
-	make debug
-
-Then run tests with
-
-	./build/debug.linux/vbtests
+	make test BUILD_MODE=debug
