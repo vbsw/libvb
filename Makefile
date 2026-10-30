@@ -10,12 +10,12 @@ endif
 
 ifeq ($(BUILD_MODE),debug)
 	ifeq ($(CREATE_BUILD_DIR),yes)
-		BUILD_DIR := $(BUILD_DIR)/build/debug.$(BUILD_SUB)/
+		BUILD_DIR := $(BUILD_DIR)/build/debug.$(BUILD_SUB)
 	endif
 	CFLAGS += -g -O0
 else
 	ifeq ($(CREATE_BUILD_DIR),yes)
-		BUILD_DIR := $(BUILD_DIR)/build/release.$(BUILD_SUB)/
+		BUILD_DIR := $(BUILD_DIR)/build/release.$(BUILD_SUB)
 	endif
 	CFLAGS += -O2
 endif
@@ -34,9 +34,12 @@ OBJS_TST := $(patsubst $(PROJECT_ROOT)test/%.c,   $(BUILD_OBJ_DIR)%.o, $(SRC_TST
 # needed for dependency tracking
 CFLAGS += -MMD -MP
 
-.PHONY: all clean
+.PHONY: all test clean
 
 all: $(TARGET)
+
+test: $(TARGET)
+	$(TARGET)
 
 $(TARGET): $(OBJS_APP) $(OBJS_UTL) $(OBJS_TST) $(BUILD_DIR)/testfile.txt
 	$(CC) $(LDFLAGS) -o $@ $(OBJS_APP) $(OBJS_UTL) $(OBJS_TST)

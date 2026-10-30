@@ -34,6 +34,7 @@ int main(int argc, char **argv) {
 	test_fle(&err_line); PRINT_RESULT_CLM_A("fle")
 	test_tab(&err_line); PRINT_RESULT_CLM_B("tab")
 	test_cml(&err_line); PRINT_RESULT_CLM_A("cml")
+	printf("\n");
 
 	return 0;
 }
