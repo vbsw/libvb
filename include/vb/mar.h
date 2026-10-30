@@ -8,7 +8,6 @@
 #ifndef VBSW_VB_MAR_H
 #define VBSW_VB_MAR_H
 
-#include <stdalign.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include "mem.h"
@@ -34,7 +33,7 @@ typedef struct {
 
 typedef struct {
 	vb_mar_head_t *head;
-	vb_err_t *err;
+	vb_err_t **err;
 } vb_mar_t;
 
 void*     vb_mar_alloc     (vb_mar_t *arena, int64_t size);

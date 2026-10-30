@@ -5,31 +5,42 @@
  *        http://www.boost.org/LICENSE_1_0.txt)
  */
 
-#ifndef VBSW_VB_ERR
-#define VBSW_VB_ERR
+#ifndef VBSW_VB_ERR_H
+#define VBSW_VB_ERR_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct {
-	char *str;
+	void *next_err;
+	const uint8_t *str;
+	const uint8_t *file_name;
+	const uint8_t *func_name;
 	int64_t num1;
 	int64_t num2;
+	int32_t file_line;
+	int32_t file_name_len;
+	int32_t func_name_len;
 } vb_err_t;
 
-vb_err_t *vb_err_new     (int64_t num1, int64_t num2, const char *str1, const char *str2);
-vb_err_t *vb_err_new_oom (int64_t num1, int64_t num2, const char *str2);
+vb_err_t *vb_err_apdf    (vb_err_t **err, vb_err_t *other_err);
+vb_err_t *vb_err_new     (vb_err_t **err, int64_t num1, int64_t num2, const uint8_t *str1, const uint8_t *str2, const uint8_t *file_path, const uint8_t *func_name, size_t line, size_t len1, size_t len2);
+vb_err_t *vb_err_new_oom (vb_err_t **err, int64_t num1, int64_t num2, const uint8_t *str2, const uint8_t *file_name, const uint8_t *file_path, size_t line, size_t len1, size_t len2);
 vb_err_t *vb_err_free    (vb_err_t *err);
+
+#define VB_ERR_FFL __FILE__, __func__, __LINE__, sizeof(__FILE__), sizeof(__func__)
+#define VB_ERR_NULL(a) ((a) == NULL || *(a) == NULL)
 
 #define VB_ERR_NONE                       0
 #define VB_ERR(a)                        (a > 0 && a < 5)
 #define VB_ERR_OUT_OF_MEMORY              1
-#define VB_ERR_STR1_OVERFLOW              2
-#define VB_ERR_STR2_OVERFLOW              3
-#define VB_ERR_NUM2_OVERFLOW              4
+#define VB_ERR_SIZE_OVERFLOW              2
+#define VB_ERR_RESERVED1                  3
+#define VB_ERR_RESERVED2                  4
 
 #define VB_ERR_MST(a)                    (a > 4 && a < 9)
 #define VB_ERR_MST_UNDERFLOW              5
@@ -53,8 +64,30 @@ vb_err_t *vb_err_free    (vb_err_t *err);
 #define VB_ERR_TME_CLOCK                 17
 #define VB_ERR_TME_MONO                  18
 
+#define VB_ERR_BUF(a)                    (a > 18 && a < 23)
+#define VB_ERR_BUF_UNDERFLOW             19
+#define VB_ERR_BUF_OVERFLOW              20
+#define VB_ERR_BUF_LIMIT_EXCEEDED        21
+#define VB_ERR_BUF_OOM                   22
+
+#define VB_ERR_FLE(a)                    (a > 22 && a < 32)
+#define VB_ERR_FLE_CANT_READ             23
+#define VB_ERR_FLE_CANT_CREATE           24
+#define VB_ERR_FLE_CANT_DELETE           25
+#define VB_ERR_FLE_CANT_CLOSE            26
+#define VB_ERR_FLE_CANT_DETERMINE_PATH   27
+#define VB_ERR_FLE_OOM                   28
+#define VB_ERR_FLE_BUFFER_MISSING        29
+#define VB_ERR_FLE_UNDERFLOW             30
+#define VB_ERR_FLE_OVERFLOW              31
+
+#define VB_ERR_CML(a)                    (a > 31 && a < 35)
+#define VB_ERR_CML_OOM                   32
+#define VB_ERR_CML_UNDERFLOW             33
+#define VB_ERR_CML_OVERFLOW              34
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* VBSW_VB_ERR */
+#endif /* VBSW_VB_ERR_H */

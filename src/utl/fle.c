@@ -1,0 +1,200 @@
+/*
+ *          Copyright 2026, Vitali Baumtrok.
+ * Distributed under the Boost Software License, Version 1.0.
+ *     (See accompanying file LICENSE or copy at
+ *        http://www.boost.org/LICENSE_1_0.txt)
+ */
+
+#include <assert.h>
+#include <stddef.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <limits.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <vb/fle.h>
+
+bool vb_fle_alloc_path_buffer(vb_fle_t *const file, vb_mem_t *const mem) {
+	assert(file);
+	file->buf = vb_buf_new_size(PATH_MAX, mem, file->err);
+	return (file->buf != NULL);
+}
+
+bool vb_fle_dir_name(vb_fle_t *const file) {
+	assert(file);
+	bool ret_val = false;
+	if (VB_ERR_NULL(file->err)) {
+		assert(file->buf);
+		assert(file->buf->size > 0);
+		// TODO
+	}
+	return ret_val;
+}
+
+bool vb_fle_base_name(vb_fle_t *const file) {
+	assert(file);
+	bool ret_val = false;
+	if (VB_ERR_NULL(file->err)) {
+		assert(file->buf);
+		assert(file->buf->size > 0);
+		// TODO
+	}
+	return ret_val;
+}
+
+bool vb_fle_exe_path(vb_fle_t *const file) {
+	assert(file);
+	bool ret_val = false;
+	if (VB_ERR_NULL(file->err)) {
+		if (file->buf) {
+			if (file->buf->size > 1) {
+				const size_t buf_size = (size_t)file->buf->size;
+				if ((int64_t)buf_size == file->buf->size) {
+					const ssize_t path_size = readlink("/proc/self/exe", file->buf->data, buf_size);
+					if (path_size >= 0 && path_size < buf_size) {
+						file->buf->data[path_size] = '\0';
+						file->buf->size = (int64_t)path_size;
+						ret_val = true;
+					} else {
+						vb_err_new(file->err, VB_ERR_FLE_CANT_DETERMINE_PATH, 0, "can't determine path of executable", NULL, VB_ERR_FFL);
+					}
+				} else {
+					vb_err_new(file->err, VB_ERR_FLE_OVERFLOW, 1, "buffer size overflow", NULL, VB_ERR_FFL);
+				}
+			} else {
+				vb_err_new(file->err, VB_ERR_FLE_UNDERFLOW, 1, "buffer size underflow", NULL, VB_ERR_FFL);
+			}
+		} else {
+			vb_err_new(file->err, VB_ERR_FLE_BUFFER_MISSING, 1, "buffer missing", NULL, VB_ERR_FFL);
+		}
+	}
+	return ret_val;
+}
+
+bool vb_fle_mkd(vb_fle_t *const file, const uint8_t *const path) {
+	assert(file);
+	bool ret_val = false;
+	if (VB_ERR_NULL(file->err)) {
+		file->type = VB_FLE_OTHER;
+		file->exists = false;
+		if (!mkdir(path, 0777)) {
+			file->type = VB_FLE_DIR;
+			file->exists = true;
+			ret_val = true;
+		} else {
+			vb_err_new(file->err, VB_ERR_FLE_CANT_CREATE, 0, "can't create directory", NULL, VB_ERR_FFL);
+		}
+	}
+	return ret_val;
+}
+
+bool vb_fle_mkf(vb_fle_t *const file, const uint8_t *const path) {
+	assert(file);
+	bool ret_val = false;
+	if (VB_ERR_NULL(file->err)) {
+		const int fd = open(path, O_CREAT | O_WRONLY | O_EXCL, 0666);
+		file->type = VB_FLE_OTHER;
+		file->exists = false;
+		if (fd >= 0) {
+			if (!close(fd)) {
+				file->type = VB_FLE_FILE;
+				file->exists = true;
+				ret_val = true;
+			} else {
+				vb_err_new(file->err, VB_ERR_FLE_CANT_CLOSE, 0, "can't close file", NULL, VB_ERR_FFL);
+			}
+		} else {
+			vb_err_new(file->err, VB_ERR_FLE_CANT_CREATE, 0, "can't create file", NULL, VB_ERR_FFL);
+		}
+	}
+	return ret_val;
+}
+
+bool vb_fle_rm(vb_fle_t *const file, const uint8_t *const path) {
+	assert(file);
+	bool ret_val = false;
+	if (VB_ERR_NULL(file->err)) {
+		file->type = VB_FLE_FILE;
+		file->exists = false;
+		if (!unlink(path)) {
+			ret_val = true;
+		} else if (errno == EISDIR) {
+			file->type = VB_FLE_DIR;
+			if (!rmdir(path)) {
+				// nothing
+			} else if (errno == ENOTEMPTY) {
+				vb_err_new(file->err, VB_ERR_FLE_CANT_DELETE, 3, "can't delete directory", NULL, VB_ERR_FFL);
+			} else {
+				vb_err_new(file->err, VB_ERR_FLE_CANT_DELETE, 2, "can't delete directory", NULL, VB_ERR_FFL);
+			}
+		} else {
+			vb_err_new(file->err, VB_ERR_FLE_CANT_DELETE, 1, "can't delete file", NULL, VB_ERR_FFL);
+		}
+	}
+	return ret_val;
+}
+
+bool vb_fle_set_base_name(vb_fle_t *const file, const uint8_t *const base_name) {
+	assert(file);
+	bool ret_val = false;
+	if (VB_ERR_NULL(file->err)) {
+		assert(base_name);
+		if (file->buf) {
+			if (file->buf->size > 1) {
+				size_t base_name_size = strlen(base_name);
+				int64_t base_size = (int64_t)base_name_size;
+				if ((size_t)base_size == base_name_size) {
+					vb_buf_t *const buf = file->buf;
+					int64_t buf_size_m1 = buf->size - 1;
+					for (int64_t i = buf_size_m1; i >= 0; i--) {
+						if (buf->data[i] == '/') {
+							int64_t diff = base_size - (buf_size_m1 - i);
+							if (diff <= buf->cap - buf_size_m1) {
+								buf->size += diff;
+								if (base_name_size > 0)
+									memcpy((void*)&buf->data[i+1], (void*)base_name, base_name_size+1); // copy zero, too
+								else
+									buf->data[buf->size+1] = '\0';
+							}
+							ret_val = true;
+							break;
+						}
+					}
+				} else {
+					vb_err_new(file->err, VB_ERR_FLE_OVERFLOW, 2, "base name overflow", NULL, VB_ERR_FFL);
+				}
+			} else {
+				vb_err_new(file->err, VB_ERR_FLE_UNDERFLOW, 2, "buffer size underflow", NULL, VB_ERR_FFL);
+			}
+		} else {
+			vb_err_new(file->err, VB_ERR_FLE_BUFFER_MISSING, 2, "buffer missing", NULL, VB_ERR_FFL);
+		}
+	}
+	return ret_val;
+}
+
+bool vb_fle_stats(vb_fle_t *const file, const uint8_t *const path) {
+	assert(file);
+	bool ret_val = false;
+	if (VB_ERR_NULL(file->err)) {
+		struct stat info;
+		if (!stat(path, &info)) {
+			if (S_ISREG(info.st_mode)) {
+				file->type = VB_FLE_FILE;
+			} else if (S_ISDIR(info.st_mode)) {
+				file->type = VB_FLE_DIR;
+			} else {
+				file->type = VB_FLE_OTHER;
+			}
+			file->exists = true;
+			ret_val = true;
+		} else {
+			file->type = VB_FLE_OTHER;
+			file->exists = false;
+			vb_err_new(file->err, VB_ERR_FLE_CANT_READ, 0, "can't read file", NULL, VB_ERR_FFL);
+		}
+	}
+	return ret_val;
+}

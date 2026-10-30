@@ -5,34 +5,31 @@
  *        http://www.boost.org/LICENSE_1_0.txt)
  */
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <assert.h>
+#include <vb/sze.h>
 #include <vb/mar.h>
 
-#define MST_INT_MAX   ((sizeof(size_t) >= sizeof(int64_t)) ? INT64_MAX : SIZE_MAX)
-
-#define ROUND_UP(a)   ((a + alignof(max_align_t) - 1) & ~(alignof(max_align_t) - 1))
-#define HEAD_T_SIZE   ROUND_UP(sizeof(vb_mar_head_t))
-#define BLOCK_T_SIZE  ROUND_UP(sizeof(vb_mar_block_t))
+#define HEAD_T_SIZE   VB_SZE_ROUND_UP(sizeof(vb_mar_head_t))
+#define BLOCK_T_SIZE  VB_SZE_ROUND_UP(sizeof(vb_mar_block_t))
 
 #define STRUCTS_INIT_SIZE   (HEAD_T_SIZE + BLOCK_T_SIZE)
-#define MAX_BEFORE_ROUND_UP (MST_INT_MAX - alignof(max_align_t) + 1)
 
 void *vb_mar_alloc(vb_mar_t *const arena, const int64_t size) {
 	assert(arena);
 	void *ret_val = NULL;
-	if (arena->err == NULL) {
+	if (VB_ERR_NULL(arena->err)) {
 		if (size > 0) {
-			if (size <= (int64_t)(MAX_BEFORE_ROUND_UP - STRUCTS_INIT_SIZE)) {
-				const size_t size_up = (size_t)ROUND_UP(size);
+			if (VB_SZE_MAX_OK_RA(size, STRUCTS_INIT_SIZE)) {
+				const int64_t size_up = VB_SZE_ROUND_UP(size);
 				if (size_up <= arena->head->size_total_max - arena->head->size_used) {
 					vb_mar_block_t *block = arena->head->block;
 					// per block
 					while (true) {
 						const int64_t block_size_free = block->size_total - block->size_used;
 						if (size_up <= block_size_free) {
-							ret_val = (void*)&((char*)block)[block->size_used];
+							ret_val = (void*)&((uint8_t*)block)[block->size_used];
 							block->size_used += size_up;
 							arena->head->size_used += size_up;
 							break;
@@ -41,13 +38,13 @@ void *vb_mar_alloc(vb_mar_t *const arena, const int64_t size) {
 							block = block->next_block;
 						// create new block
 						} else {
-							const size_t block_size_used_new = size_up + BLOCK_T_SIZE;
-							const size_t total_rest = arena->head->size_total_max - arena->head->size_total;
+							const int64_t block_size_used_new = size_up + BLOCK_T_SIZE;
+							const int64_t total_rest = arena->head->size_total_max - arena->head->size_total;
 							if (block_size_used_new <= total_rest) {
-								const size_t block_size_total_new = (arena->head->size_block_init > block_size_used_new) ? (arena->head->size_block_init <= total_rest ? arena->head->size_block_init : total_rest) : block_size_used_new;
-								vb_mar_block_t *const block_new = (vb_mar_block_t*)malloc(block_size_total_new);
+								const int64_t block_size_total_new = (arena->head->size_block_init > block_size_used_new) ? (arena->head->size_block_init <= total_rest ? arena->head->size_block_init : total_rest) : block_size_used_new;
+								vb_mar_block_t *const block_new = malloc(block_size_total_new);
 								if (block_new) {
-									ret_val = (void*)&((char*)block_new)[BLOCK_T_SIZE];
+									ret_val = (void*)&((uint8_t*)block_new)[BLOCK_T_SIZE];
 									block_new->next_block = NULL;
 									block_new->size_used = block_size_used_new;
 									block_new->size_total = block_size_total_new;
@@ -56,22 +53,22 @@ void *vb_mar_alloc(vb_mar_t *const arena, const int64_t size) {
 									arena->head->size_total += block_size_total_new;
 									arena->head->size_overhead += BLOCK_T_SIZE;
 								} else {
-									arena->err = vb_err_new_oom(VB_ERR_MAR_OOM, 7, NULL);
+									vb_err_new_oom(arena->err, VB_ERR_MAR_OOM, 7, NULL, VB_ERR_FFL);
 								}
 							} else {
-								arena->err = vb_err_new_oom(VB_ERR_MAR_OOM, 6, NULL);
+								vb_err_new_oom(arena->err, VB_ERR_MAR_OOM, 6, NULL, VB_ERR_FFL);
 							}
 							break;
 						}
 					}
 				} else {
-					arena->err = vb_err_new_oom(VB_ERR_MAR_OOM, 5, NULL);
+					vb_err_new_oom(arena->err, VB_ERR_MAR_OOM, 5, NULL, VB_ERR_FFL);
 				}
 			} else {
-				arena->err = vb_err_new(VB_ERR_MAR_OVERFLOW, 4, "allocation size overflow", NULL);
+				vb_err_new(arena->err, VB_ERR_MAR_OVERFLOW, 4, "allocation size overflow", NULL, VB_ERR_FFL);
 			}
 		} else {
-			arena->err = vb_err_new(VB_ERR_MAR_UNDERFLOW, 4, "allocation size underflow", NULL);
+			vb_err_new(arena->err, VB_ERR_MAR_UNDERFLOW, 4, "allocation size underflow", NULL, VB_ERR_FFL);
 		}
 	}
 	return ret_val;
@@ -79,13 +76,13 @@ void *vb_mar_alloc(vb_mar_t *const arena, const int64_t size) {
 
 void vb_mar_destroy(vb_mar_t *const arena) {
 	assert(arena);
-	if (arena->err == NULL) {
+	if (VB_ERR_NULL(arena->err)) {
 		if (arena->head) {
 			vb_mar_block_t *block = arena->head->block->next_block;
-			free((void*)arena->head);
+			free(arena->head);
 			while (block) {
 				vb_mar_block_t *const next_block = block->next_block;
-				free((void*)block);
+				free(block);
 				block = next_block;
 			}
 			arena->head = NULL;
@@ -105,7 +102,7 @@ vb_mem_t *vb_mar_mem_init(vb_mar_t *const arena, vb_mem_t *const mem) {
 	mem->free = (vb_mem_free_t)vb_mar_free;
 	mem->destroy = (vb_mem_destroy_t)vb_mar_destroy;
 	mem->obj = (void*)arena;
-	mem->err = &arena->err;
+	mem->err = arena->err;
 	return mem;
 }
 
@@ -117,14 +114,14 @@ vb_mem_t *vb_mar_mem_new(vb_mar_t *const arena) {
 bool vb_mar_new(vb_mar_t *const arena, const int64_t size_init, const int64_t size_total_max) {
 	assert(arena);
 	bool ret_val = false;
-	if (arena->err == NULL) {
+	if (VB_ERR_NULL(arena->err)) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
 			if (size_init <= size_total_max) {
-				if (size_total_max <= MAX_BEFORE_ROUND_UP) {
-					const size_t size_init_up = (size_t)ROUND_UP(size_init);
-					vb_mar_head_t *const head = (vb_mar_head_t*)malloc(size_init_up);
+				if (VB_SZE_MAX_OK_R(size_total_max)) {
+					const int64_t size_init_up = VB_SZE_ROUND_UP(size_init);
+					vb_mar_head_t *const head = malloc(size_init_up);
 					if (head) {
-						vb_mar_block_t *const block = (vb_mar_block_t*)&((char*)head)[HEAD_T_SIZE];
+						vb_mar_block_t *const block = (vb_mar_block_t*)&((uint8_t*)head)[HEAD_T_SIZE];
 						block->next_block = NULL;
 						block->size_used = STRUCTS_INIT_SIZE;
 						block->size_total = size_init_up;
@@ -133,20 +130,20 @@ bool vb_mar_new(vb_mar_t *const arena, const int64_t size_init, const int64_t si
 						head->size_total = size_init_up;
 						head->size_overhead = STRUCTS_INIT_SIZE;
 						head->size_block_init = size_init_up;
-						head->size_total_max = ROUND_UP(size_total_max);
+						head->size_total_max = VB_SZE_ROUND_UP(size_total_max);
 						arena->head = head;
 						ret_val = true;
 					} else {
-						arena->err = vb_err_new_oom(VB_ERR_MAR_OOM, 1, NULL);
+						vb_err_new_oom(arena->err, VB_ERR_MAR_OOM, 1, NULL, VB_ERR_FFL);
 					}
 				} else {
-					arena->err = vb_err_new(VB_ERR_MAR_OVERFLOW, 1, "total max size overflow", NULL);
+					vb_err_new(arena->err, VB_ERR_MAR_OVERFLOW, 1, "total max size overflow", NULL, VB_ERR_FFL);
 				}
 			} else {
-				arena->err = vb_err_new(VB_ERR_MAR_LIMIT_EXCEEDED, VB_ERR_NONE, "initial size exceeds limit", NULL);
+				vb_err_new(arena->err, VB_ERR_MAR_LIMIT_EXCEEDED, VB_ERR_NONE, "initial size exceeds limit", NULL, VB_ERR_FFL);
 			}
 		} else {
-			arena->err = vb_err_new(VB_ERR_MAR_UNDERFLOW, 1, "initial size underflow", NULL);
+			vb_err_new(arena->err, VB_ERR_MAR_UNDERFLOW, 1, "initial size underflow", NULL, VB_ERR_FFL);
 		}
 	}
 	return ret_val;
@@ -155,11 +152,11 @@ bool vb_mar_new(vb_mar_t *const arena, const int64_t size_init, const int64_t si
 bool vb_mar_new_empty(vb_mar_t *const arena) {
 	assert(arena);
 	bool ret_val = false;
-	if (arena->err == NULL) {
-		const size_t size_init_up = STRUCTS_INIT_SIZE;
-		vb_mar_head_t *const head = (vb_mar_head_t*)malloc(size_init_up);
+	if (VB_ERR_NULL(arena->err)) {
+		const int64_t size_init_up = STRUCTS_INIT_SIZE;
+		vb_mar_head_t *const head = malloc(size_init_up);
 		if (head) {
-			vb_mar_block_t *const block = (vb_mar_block_t*)&((char*)head)[HEAD_T_SIZE];
+			vb_mar_block_t *const block = (vb_mar_block_t*)&((uint8_t*)head)[HEAD_T_SIZE];
 			block->next_block = NULL;
 			block->size_used = size_init_up;
 			block->size_total = size_init_up;
@@ -172,7 +169,7 @@ bool vb_mar_new_empty(vb_mar_t *const arena) {
 			arena->head = head;
 			ret_val = true;
 		} else {
-			arena->err = vb_err_new_oom(VB_ERR_MAR_OOM, 2, NULL);
+			vb_err_new_oom(arena->err, VB_ERR_MAR_OOM, 2, NULL, VB_ERR_FFL);
 		}
 	}
 	return ret_val;
@@ -181,13 +178,13 @@ bool vb_mar_new_empty(vb_mar_t *const arena) {
 bool vb_mar_new_max(vb_mar_t *const arena, const int64_t size_init) {
 	assert(arena);
 	bool ret_val = false;
-	if (arena->err == NULL) {
+	if (VB_ERR_NULL(arena->err)) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
-			if (size_init <= MAX_BEFORE_ROUND_UP) {
-				const size_t size_init_up = (size_t)ROUND_UP(size_init);
-				vb_mar_head_t *const head = (vb_mar_head_t*)malloc(size_init_up);
+			if (VB_SZE_MAX_OK_R(size_init)) {
+				const int64_t size_init_up = VB_SZE_ROUND_UP(size_init);
+				vb_mar_head_t *const head = malloc(size_init_up);
 				if (head) {
-					vb_mar_block_t *const block = (vb_mar_block_t*)&((char*)head)[HEAD_T_SIZE];
+					vb_mar_block_t *const block = (vb_mar_block_t*)&((uint8_t*)head)[HEAD_T_SIZE];
 					block->next_block = NULL;
 					block->size_used = STRUCTS_INIT_SIZE;
 					block->size_total = size_init_up;
@@ -196,17 +193,17 @@ bool vb_mar_new_max(vb_mar_t *const arena, const int64_t size_init) {
 					head->size_total = size_init_up;
 					head->size_overhead = STRUCTS_INIT_SIZE;
 					head->size_block_init = size_init_up;
-					head->size_total_max = ROUND_UP(MAX_BEFORE_ROUND_UP);
+					head->size_total_max = VB_SZE_MAX_ROUNDED;
 					arena->head = head;
 					ret_val = true;
 				} else {
-					arena->err = vb_err_new_oom(VB_ERR_MAR_OOM, 4, NULL);
+					vb_err_new_oom(arena->err, VB_ERR_MAR_OOM, 4, NULL, VB_ERR_FFL);
 				}
 			} else {
-				arena->err = vb_err_new(VB_ERR_MAR_OVERFLOW, 3, "initial size overflow", NULL);
+				vb_err_new(arena->err, VB_ERR_MAR_OVERFLOW, 3, "initial size overflow", NULL, VB_ERR_FFL);
 			}
 		} else {
-			arena->err = vb_err_new(VB_ERR_MAR_UNDERFLOW, 3, "initial size underflow", NULL);
+			vb_err_new(arena->err, VB_ERR_MAR_UNDERFLOW, 3, "initial size underflow", NULL, VB_ERR_FFL);
 		}
 	}
 	return ret_val;
@@ -215,13 +212,13 @@ bool vb_mar_new_max(vb_mar_t *const arena, const int64_t size_init) {
 bool vb_mar_new_min(vb_mar_t *const arena, const int64_t size_init) {
 	assert(arena);
 	bool ret_val = false;
-	if (arena->err == NULL) {
+	if (VB_ERR_NULL(arena->err)) {
 		if (size_init >= STRUCTS_INIT_SIZE) {
-			if (size_init <= MAX_BEFORE_ROUND_UP) {
-				const size_t size_init_up = (size_t)ROUND_UP(size_init);
-				vb_mar_head_t *const head = (vb_mar_head_t*)malloc(size_init_up);
+			if (VB_SZE_MAX_OK_R(size_init)) {
+				const int64_t size_init_up = VB_SZE_ROUND_UP(size_init);
+				vb_mar_head_t *const head = malloc(size_init_up);
 				if (head) {
-					vb_mar_block_t *const block = (vb_mar_block_t*)&((char*)head)[HEAD_T_SIZE];
+					vb_mar_block_t *const block = (vb_mar_block_t*)&((uint8_t*)head)[HEAD_T_SIZE];
 					block->next_block = NULL;
 					block->size_used = STRUCTS_INIT_SIZE;
 					block->size_total = size_init_up;
@@ -234,13 +231,13 @@ bool vb_mar_new_min(vb_mar_t *const arena, const int64_t size_init) {
 					arena->head = head;
 					ret_val = true;
 				} else {
-					arena->err = vb_err_new_oom(VB_ERR_MAR_OOM, 3, NULL);
+					vb_err_new_oom(arena->err, VB_ERR_MAR_OOM, 3, NULL, VB_ERR_FFL);
 				}
 			} else {
-				arena->err = vb_err_new(VB_ERR_MAR_OVERFLOW, 2, "initial size overflow", NULL);
+				vb_err_new(arena->err, VB_ERR_MAR_OVERFLOW, 2, "initial size overflow", NULL, VB_ERR_FFL);
 			}
 		} else {
-			arena->err = vb_err_new(VB_ERR_MAR_UNDERFLOW, 2, "initial size underflow", NULL);
+			vb_err_new(arena->err, VB_ERR_MAR_UNDERFLOW, 2, "initial size underflow", NULL, VB_ERR_FFL);
 		}
 	}
 	return ret_val;
