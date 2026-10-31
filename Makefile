@@ -11,7 +11,7 @@ ifeq ($(BUILD_MODE),debug)
 	ifeq ($(CREATE_BUILD_DIR),yes)
 		BUILD_DIR := $(BUILD_DIR)/build/debug.linux/
 	endif
-	CFLAGS += -g -O0
+	CFLAGS += -g -O1 -Wall -Wextra -fno-omit-frame-pointer
 else
 	ifeq ($(CREATE_BUILD_DIR),yes)
 		BUILD_DIR := $(BUILD_DIR)/build/release.linux/

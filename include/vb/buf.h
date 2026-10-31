@@ -16,12 +16,12 @@ extern "C" {
 #endif
 
 typedef struct {
-	uint8_t *data;
+	char *data;
 	int64_t size;
 	int64_t cap;
 } vb_buf_t;
 
-void vb_buf_init          (vb_buf_t *buf, uint8_t *data, int64_t size, int64_t cap);
+void vb_buf_init          (vb_buf_t *buf, char *data, int64_t size, int64_t cap);
 bool vb_buf_init_new      (vb_buf_t *buf, int64_t size, int64_t cap, vb_mem_t *mem, vb_err_t **err);
 bool vb_buf_init_new_cap  (vb_buf_t *buf, int64_t cap, vb_mem_t *mem, vb_err_t **err);
 bool vb_buf_init_new_size (vb_buf_t *buf, int64_t size, vb_mem_t *mem, vb_err_t **err);

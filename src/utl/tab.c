@@ -85,13 +85,13 @@ static int64_t parse_key(uint8_t *const data, const int64_t from, const int64_t 
 
 static void parse_key_value(vb_tab_t *const tab) {
 	const int8_t state_old = tab->state;
-	tab->key_end = parse_key(tab->buf->data, tab->key_begin, tab->line_end, &tab->state);
+	tab->key_end = parse_key((uint8_t*)tab->buf->data, tab->key_begin, tab->line_end, &tab->state);
 	// more to parse
 	if (state_old == tab->state) {
-		tab->val_begin = skip_whitespace(tab->buf->data, tab->key_end, tab->line_end);
-		tab->val_end = parse_value(tab->buf->data, tab->val_begin, tab->line_end, &tab->state);
+		tab->val_begin = skip_whitespace((uint8_t*)tab->buf->data, tab->key_end, tab->line_end);
+		tab->val_end = parse_value((uint8_t*)tab->buf->data, tab->val_begin, tab->line_end, &tab->state);
 		tab->next_key_begin = tab->val_end + 1;
-		tab->val_end = skip_whitespace_reverse(tab->buf->data, tab->val_begin, tab->val_end);
+		tab->val_end = skip_whitespace_reverse((uint8_t*)tab->buf->data, tab->val_begin, tab->val_end);
 		if (state_old == tab->state)
 			tab->state = STATE_NEW_LINE;
 	// end here, inline element next
@@ -99,7 +99,7 @@ static void parse_key_value(vb_tab_t *const tab) {
 		tab->val_begin = tab->key_end;
 		tab->val_end = tab->key_end;
 		tab->next_key_begin = tab->key_end + 1;
-		tab->key_end = skip_whitespace_reverse(tab->buf->data, tab->key_begin, tab->key_end);
+		tab->key_end = skip_whitespace_reverse((uint8_t*)tab->buf->data, tab->key_begin, tab->key_end);
 	}
 	tab->key_len = tab->key_end - tab->key_begin;
 	tab->val_len = tab->val_end - tab->val_begin;
@@ -227,12 +227,12 @@ static bool tab_next(vb_tab_t *const tab, const bool no_inline) {
 				}
 			case STATE_NEW_LINE_PREFIX:
 				if (no_inline) {
-					tab->key_begin = skip_whitespace(tab->buf->data, tab->key_begin, tab->line_end);
+					tab->key_begin = skip_whitespace((uint8_t*)tab->buf->data, tab->key_begin, tab->line_end);
 					vb_tab_key_val_no_inl(tab);
 					return true;
 				} else {
-					tab->key_begin = skip_whitespace_and_char(tab->buf->data, tab->key_begin, tab->line_end, '|');
-					if (is_comment(tab->buf->data, tab->key_begin, tab->line_end)) {
+					tab->key_begin = skip_whitespace_and_char((uint8_t*)tab->buf->data, tab->key_begin, tab->line_end, '|');
+					if (is_comment((uint8_t*)tab->buf->data, tab->key_begin, tab->line_end)) {
 						tab->state = STATE_NEW_LINE;
 						break;
 					} else {
@@ -246,11 +246,11 @@ static bool tab_next(vb_tab_t *const tab, const bool no_inline) {
 					}
 				}
 			case STATE_INLINE_CHILD:
-				tab->key_begin = skip_whitespace(tab->buf->data, tab->next_key_begin, tab->line_end);
+				tab->key_begin = skip_whitespace((uint8_t*)tab->buf->data, tab->next_key_begin, tab->line_end);
 				if (parse_inline_child_prefix(tab)) {
-					tab->key_begin = skip_whitespace(tab->buf->data, tab->key_begin, tab->line_end);
+					tab->key_begin = skip_whitespace((uint8_t*)tab->buf->data, tab->key_begin, tab->line_end);
 				}
-				if (is_comment(tab->buf->data, tab->key_begin, tab->line_end)) {
+				if (is_comment((uint8_t*)tab->buf->data, tab->key_begin, tab->line_end)) {
 					tab->state = STATE_NEW_LINE;
 					break;
 				} else {
@@ -259,8 +259,8 @@ static bool tab_next(vb_tab_t *const tab, const bool no_inline) {
 					return true;
 				}
 			case STATE_INLINE_SIBLING:
-				tab->key_begin = skip_whitespace_and_char(tab->buf->data, tab->next_key_begin, tab->line_end, '|');
-				if (is_comment(tab->buf->data, tab->key_begin, tab->line_end)) {
+				tab->key_begin = skip_whitespace_and_char((uint8_t*)tab->buf->data, tab->next_key_begin, tab->line_end, '|');
+				if (is_comment((uint8_t*)tab->buf->data, tab->key_begin, tab->line_end)) {
 					tab->state = STATE_NEW_LINE;
 					break;
 				} else {
@@ -282,11 +282,11 @@ void vb_tab_key_no_inl(vb_tab_t *const tab) {
 	assert(tab);
 	assert(tab->buf);
 	const int8_t state_old = tab->state;
-	tab->key_end = skip_non_whitespace(tab->buf->data, tab->key_begin, tab->line_end);
-	tab->val_begin = skip_whitespace(tab->buf->data, tab->key_end, tab->line_end);
-	tab->val_end = parse_value(tab->buf->data, tab->val_begin, tab->line_end, &tab->state);
+	tab->key_end = skip_non_whitespace((uint8_t*)tab->buf->data, tab->key_begin, tab->line_end);
+	tab->val_begin = skip_whitespace((uint8_t*)tab->buf->data, tab->key_end, tab->line_end);
+	tab->val_end = parse_value((uint8_t*)tab->buf->data, tab->val_begin, tab->line_end, &tab->state);
 	tab->next_key_begin = tab->val_end + 1;
-	tab->val_end = skip_whitespace_reverse(tab->buf->data, tab->val_begin, tab->line_end);
+	tab->val_end = skip_whitespace_reverse((uint8_t*)tab->buf->data, tab->val_begin, tab->line_end);
 	if (state_old == tab->state)
 		tab->state = STATE_NEW_LINE;
 	tab->key_len = tab->key_end - tab->key_begin;
@@ -294,15 +294,15 @@ void vb_tab_key_no_inl(vb_tab_t *const tab) {
 }
 
 void vb_tab_key_val_no_inl(vb_tab_t *const tab) {
-	tab->key_end = skip_non_whitespace(tab->buf->data, tab->key_begin, tab->line_end);
-	tab->val_begin = skip_whitespace(tab->buf->data, tab->key_end, tab->line_end);
+	tab->key_end = skip_non_whitespace((uint8_t*)tab->buf->data, tab->key_begin, tab->line_end);
+	tab->val_begin = skip_whitespace((uint8_t*)tab->buf->data, tab->key_end, tab->line_end);
 	tab->key_len = tab->key_end - tab->key_begin;
 	vb_tab_val_no_inl(tab);
 }
 
 void vb_tab_line_no_inl(vb_tab_t *const tab) {
 	parse_indentation(tab);
-	tab->key_begin = skip_whitespace(tab->buf->data, tab->key_begin, tab->line_end);
+	tab->key_begin = skip_whitespace((uint8_t*)tab->buf->data, tab->key_begin, tab->line_end);
 	vb_tab_key_val_no_inl(tab);
 }
 
@@ -341,7 +341,7 @@ bool vb_tab_list_next(vb_tab_list_t *const tab_list, const uint8_t separator) {
 	assert(tab_list);
 	assert(tab_list->buf);
 	for (int64_t i = tab_list->separator_begin + 1; i < tab_list->list_end; i++) {
-		const uint8_t byte = tab_list->buf->data[i];
+		const uint8_t byte = (uint8_t)tab_list->buf->data[i];
 		if (byte == separator && separator != ' ') {
 			tab_list->entry_begin = i, tab_list->entry_end = i, tab_list->separator_begin = i, tab_list->entry_len = 0;
 			tab_list->entry_idx++;
@@ -352,7 +352,7 @@ bool vb_tab_list_next(vb_tab_list_t *const tab_list, const uint8_t separator) {
 			for (int64_t j = i + 1; j < tab_list->list_end; j++) {
 				if (tab_list->buf->data[j] == separator) {
 					if (separator == ' ') {
-						const int64_t next_entry_begin = skip_whitespace(tab_list->buf->data, j+1, tab_list->list_end);
+						const int64_t next_entry_begin = skip_whitespace((uint8_t*)tab_list->buf->data, j+1, tab_list->list_end);
 						if (next_entry_begin < tab_list->list_end)
 							tab_list->separator_begin = next_entry_begin - 1;
 					} else {
@@ -361,7 +361,7 @@ bool vb_tab_list_next(vb_tab_list_t *const tab_list, const uint8_t separator) {
 					break;
 				}
 			}
-			tab_list->entry_end = skip_whitespace_reverse(tab_list->buf->data, i+1, tab_list->separator_begin);
+			tab_list->entry_end = skip_whitespace_reverse((uint8_t*)tab_list->buf->data, i+1, tab_list->separator_begin);
 			tab_list->entry_len = tab_list->entry_end - tab_list->entry_begin;
 			tab_list->entry_idx++;
 			return true;
@@ -411,7 +411,7 @@ int64_t vb_tab_rest(vb_tab_t *const tab) {
 }
 
 void vb_tab_val_no_inl(vb_tab_t *const tab) {
-	tab->val_end = skip_whitespace_reverse(tab->buf->data, tab->val_begin, tab->line_end);
+	tab->val_end = skip_whitespace_reverse((uint8_t*)tab->buf->data, tab->val_begin, tab->line_end);
 	tab->next_key_begin = tab->line_end + 1;
 	tab->val_len = tab->val_end - tab->val_begin;
 	tab->state = STATE_NEW_LINE;
