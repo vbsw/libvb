@@ -17,9 +17,9 @@ extern "C" {
 
 typedef struct {
 	void *next_err;
-	const uint8_t *str;
-	const uint8_t *file_name;
-	const uint8_t *func_name;
+	const char *str;
+	const char *file_name;
+	const char *func_name;
 	int64_t num1;
 	int64_t num2;
 	int32_t file_line;
@@ -28,12 +28,16 @@ typedef struct {
 } vb_err_t;
 
 vb_err_t *vb_err_apdf    (vb_err_t **err, vb_err_t *other_err);
-vb_err_t *vb_err_new     (vb_err_t **err, int64_t num1, int64_t num2, const uint8_t *str1, const uint8_t *str2, const uint8_t *file_path, const uint8_t *func_name, size_t line, size_t len1, size_t len2);
-vb_err_t *vb_err_new_oom (vb_err_t **err, int64_t num1, int64_t num2, const uint8_t *str2, const uint8_t *file_name, const uint8_t *file_path, size_t line, size_t len1, size_t len2);
+vb_err_t *vb_err_new     (vb_err_t **err, int64_t num1, int64_t num2, const char *str1, const char *str2, const char *file_path, const char *func_name, size_t line, size_t len1, size_t len2);
+vb_err_t *vb_err_new_oom (vb_err_t **err, int64_t num1, int64_t num2, const char *str2, const char *file_name, const char *file_path, size_t line, size_t len1, size_t len2);
 vb_err_t *vb_err_free    (vb_err_t *err);
 
-#define VB_ERR_FFL __FILE__, __func__, __LINE__, sizeof(__FILE__), sizeof(__func__)
+#define VB_ERR_FFL     (const char*)(__FILE__), (const char*)(__func__), __LINE__, sizeof(__FILE__), sizeof(__func__)
 #define VB_ERR_NULL(a) ((a) == NULL || *(a) == NULL)
+
+#define vb_err_new_STR_NULL(e,n1,n2,s1)   vb_err_new(e, n1, n2, (const char*)s1, NULL, VB_ERR_FFL)
+#define vb_err_new_STR_STR(e,n1,n2,s1,s2) vb_err_new(e, n1, n2, (const char*)s1, (const char*)s2, VB_ERR_FFL)
+#define vb_err_new_oom_NULL(e,n1,n2)      vb_err_new_oom(e, n1, n2, NULL, VB_ERR_FFL)
 
 #define VB_ERR_NONE                       0
 #define VB_ERR(a)                        (a > 0 && a < 5)

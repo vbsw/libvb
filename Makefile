@@ -12,7 +12,8 @@ ifeq ($(BUILD_MODE),debug)
 	ifeq ($(CREATE_BUILD_DIR),yes)
 		BUILD_DIR := $(BUILD_DIR)/build/debug.$(BUILD_SUB)
 	endif
-	CFLAGS += -g -O0
+	CFLAGS += -g -O1 -Wall -Wextra -fsanitize=address,undefined -fno-omit-frame-pointer
+	LDFLAGS += -fsanitize=address,undefined
 else
 	ifeq ($(CREATE_BUILD_DIR),yes)
 		BUILD_DIR := $(BUILD_DIR)/build/release.$(BUILD_SUB)

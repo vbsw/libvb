@@ -10,6 +10,8 @@
 #include <vb/err.h>
 #include <stdbool.h>
 
+#define UNUSED_2(a,b) (void)(a); (void)(b);
+
 #define PRINT_RESULT_CLM_A(unt) if (!err_line) printf("%-6s %-21s", unt, "PASS"); else printf("%-6s FAIL line %-11d", unt, err_line);
 #define PRINT_RESULT_CLM_B(unt) if (!err_line) printf("%-6s PASS\n", unt); else printf("%-6s FAIL line %d\n", unt, err_line);
 
@@ -24,6 +26,7 @@ void test_tab(int *err_line);
 void test_cml(int *err_line);
 
 int main(int argc, char **argv) {
+	UNUSED_2(argc, argv)
 	int err_line;
 	test_err(&err_line); PRINT_RESULT_CLM_A("err")
 	test_mst(&err_line); PRINT_RESULT_CLM_B("mst")

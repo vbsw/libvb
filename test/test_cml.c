@@ -20,7 +20,7 @@ static void test_init(int *const err_line) {
 		const int64_t argc = (int64_t)(sizeof(argv)/sizeof(char**));
 		vb_cml_t cml = {0};
 
-		vb_cml_init(&cml, (const uint8_t**)argv, argc, NULL, &err);
+		vb_cml_init(&cml, argv, argc, NULL, &err);
 		ASSERT(err == NULL)
 		ASSERT(cml.err == &err)
 		ASSERT(cml.args)
@@ -50,7 +50,7 @@ static void test_new(int *const err_line) {
 		const char *argv[] = {"aa", "bbb", "cccc"};
 		const int64_t argc = (int64_t)(sizeof(argv)/sizeof(char**));
 
-		vb_cml_t *const cml = vb_cml_new((const uint8_t**)argv, argc, NULL, &err);
+		vb_cml_t *const cml = vb_cml_new(argv, argc, NULL, &err);
 		ASSERT(err == NULL)
 		ASSERT(cml)
 		ASSERT(cml->err == &err)
@@ -125,7 +125,7 @@ static void test_match_has_key_at(int *const err_line) {
 		const char *argv[] = {"--help", "--version", "print"};
 		const int64_t argc = (int64_t)(sizeof(argv)/sizeof(char**));
 
-		vb_cml_t *const cml = vb_cml_new((const uint8_t**)argv, argc, NULL, &err);
+		vb_cml_t *const cml = vb_cml_new(argv, argc, NULL, &err);
 		ASSERT(err == NULL)
 		ASSERT(cml)
 		vb_cml_args_t *const args1 = vb_cml_match_3(cml, "-h", "--help", "help");
@@ -187,7 +187,7 @@ static void test_match_dlmt0(int *const err_line) {
 		const int64_t argc = (int64_t)(sizeof(argv)/sizeof(char**));
 		vb_cml_t cml = {0};
 
-		vb_cml_init(&cml, (const uint8_t**)argv, argc, NULL, &err);
+		vb_cml_init(&cml, argv, argc, NULL, &err);
 		ASSERT(cml.dlmt == NULL)
 		ASSERT(vb_cml_dlmt_new_2(&cml, "=", ""));
 		ASSERT(cml.dlmt != NULL)
@@ -261,7 +261,7 @@ static void test_match_dlmt1(int *const err_line) {
 		const int64_t argc = (int64_t)(sizeof(argv)/sizeof(char**));
 		vb_cml_t cml = {0};
 
-		vb_cml_init(&cml, (const uint8_t**)argv, argc, NULL, &err);
+		vb_cml_init(&cml, argv, argc, NULL, &err);
 		ASSERT(cml.dlmt == NULL)
 		ASSERT(vb_cml_dlmt_new_3(&cml, "=", "", " "));
 		ASSERT(cml.dlmt != NULL)
@@ -293,7 +293,7 @@ static void test_undo_matched(int *const err_line) {
 		const int64_t argc = (int64_t)(sizeof(argv)/sizeof(char**));
 		vb_cml_t cml = {0};
 
-		vb_cml_init(&cml, (const uint8_t**)argv, argc, NULL, &err);
+		vb_cml_init(&cml, argv, argc, NULL, &err);
 		ASSERT(cml.dlmt == NULL)
 		ASSERT(vb_cml_dlmt_new_3(&cml, "=", "", " "));
 		ASSERT(cml.dlmt != NULL)
@@ -326,7 +326,7 @@ static void test_unmatched(int *const err_line) {
 		const char *argv[] = {"--help", "--version", "print"};
 		const int64_t argc = (int64_t)(sizeof(argv)/sizeof(char**));
 
-		vb_cml_t *const cml = vb_cml_new((const uint8_t**)argv, argc, NULL, &err);
+		vb_cml_t *const cml = vb_cml_new(argv, argc, NULL, &err);
 		ASSERT(err == NULL)
 		ASSERT(cml)
 		vb_cml_args_t *const args1 = vb_cml_match_3(cml, "-h", "--help", "help");
