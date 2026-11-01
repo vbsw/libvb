@@ -11,7 +11,7 @@ libvb is distributed under the Boost Software License, version 1.0. (See accompa
 libvb is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Boost Software License for more details.
 
 ## Compile
-Go into project directory and execute
+Switch to your project directory and execute
 
 	make
 
@@ -20,7 +20,7 @@ You find the static labrary (libvb.a) and dynamic labrary (libvb.so) in
 	./build/release.linux
 
 **Tests**  
-To compile tests go into project directory and checkout the "development" branch with
+Switch to your project directory and check out the "development" branch with
 
 	git switch development
 
